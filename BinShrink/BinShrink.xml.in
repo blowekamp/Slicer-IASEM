@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>@MODULE_CATEGORY@</category>
+  <title>@MODULE_NAME@</title>
+  <description>@MODULE_DESCRIPTION@</description>
+  <version>@MODULE_MAJOR_VERSION@.@MODULE_MINOR_VERSION@.@MODULE_PATCH_VERSION@-@MODULE_STATUS@</version>
+  <documentation-url>@MODULE_HOMEPAGE@</documentation-url>
+  <license>@MODULE_LICENSE_SHORT_DESCRIPTION@</license>
+  <contributor>@MODULE_CONTRIBUTORS@</contributor>
+  <acknowledgements>@MODULE_ACKNOWLEDGEMENTS@</acknowledgements>
+  <parameters>
+    <label>BinShrink Filter Parameters</label>
+    <description><![CDATA[Parameters for the BinShrink filter]]></description>
+    <integer-vector>
+      <name>neighborhood</name>
+      <longflag>--neighborhood</longflag>
+      <description><![CDATA[The size of the neighborhood in pixel for each dimension]]></description>
+      <label>Neighborhood Size</label>
+      <default>2,2,2</default>
+    </integer-vector>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <image>
+      <name>inputVolume</name>
+      <label>Input Volume</label>
+      <channel>input</channel>
+      <index>0</index>
+      <description><![CDATA[Input volume]]></description>
+    </image>
+    <image>
+      <name>outputVolume</name>
+      <label>Output Volume</label>
+      <channel>output</channel>
+      <index>1</index>
+      <description><![CDATA[Blurred Volume]]></description>
+    </image>
+  </parameters>
+</executable>
