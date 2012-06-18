@@ -1,12 +1,18 @@
-if( NOT Slicer_USE_SimpleITK )
-  return()
-endif()
 
-# SimpleTest Module
 #-----------------------------------------------------------------------------
-
 set(MODULE_NAME SimpleTest )
 
+#-----------------------------------------------------------------------------
+set(MODULE_HOMEPAGE "${EXTENSION_HOMEPAGE}")
+set(MODULE_CATEGORY "${EXTENSION_CATEGORY}")
+set(MODULE_CONTRIBUTORS "${EXTENSION_CONTRIBUTORS}")
+set(MODULE_DESCRIPTION "${EXTENSION_DESCRIPTION}")
+set(MODULE_ACKNOWLEDGEMENTS "${EXTENSION_ACKNOWLEDGEMENTS}")
+set(MODULE_MAJOR_VERSION "${EXTENSION_MAJOR_VERSION}")
+set(MODULE_MINOR_VERSION "${EXTENSION_MINOR_VERSION}")
+set(MODULE_PATCH_VERSION "${EXTENSION_PATCH_VERSION}")
+
+#-----------------------------------------------------------------------------
 # Configure XML description
 configure_file(
   ${MODULE_NAME}.xml.in
@@ -14,11 +20,14 @@ configure_file(
   @ONLY
   )
 
+#-----------------------------------------------------------------------------
+set(MODULE_TARGET_LIBRARIES
+  ${ITK_LIBRARIES} ${SimpleITK_LIBRARIES}
+  )
+  
+#-----------------------------------------------------------------------------
 slicerMacroBuildCLI(
   NAME ${MODULE_NAME}
-  #LOGO_HEADER ${Slicer_SOURCE_DIR}/Resources/NAMICLogo.h
-  TARGET_LIBRARIES ${cli_module_target_libraries} ${SimpleITK_LIBRARIES}
-  INCLUDE_DIRECTORIES ${cli_module_include_directories}
-  ADDITIONAL_SRCS ${cli_module_SRCS}
-  #EXECUTABLE_ONLY
+  TARGET_LIBRARIES ${MODULE_TARGET_LIBRARIES}
   )
+
