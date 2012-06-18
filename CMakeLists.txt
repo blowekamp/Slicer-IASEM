@@ -68,7 +68,7 @@ if(NOT Slicer_SOURCE_DIR)
     find_package(SimpleITK REQUIRED)
     include(${SimpleITK_USE_FILE})
   else()
-    message( WARNING "Slicer is not configured for SimpleITK.\n Some module will be disabled." )
+    message( WARNING "Slicer is not configured for SimpleITK.\n Some modules will be disabled." )
   endif()
 
 
@@ -109,28 +109,6 @@ add_subdirectory( DoubleThresholdEffect )
 #-----------------------------------------------------------------------------
 if(BUILD_TESTING)
   add_subdirectory(Testing)
-endif()
-
-#-----------------------------------------------------------------------------
-# Generate extension description file '<EXTENSION_NAME>.s4ext'
-#-----------------------------------------------------------------------------
-if(NOT Slicer_SOURCE_DIR)
-  include(SlicerFunctionGenerateExtensionDescription)
-  slicerFunctionGenerateExtensionDescription(
-    EXTENSION_NAME ${EXTENSION_NAME}
-#    EXTENSION_BUILD_SUBDIRECTORY ${EXTENSION_BUILD_SUBDIRECTORY}
-    EXTENSION_CATEGORY ${EXTENSION_CATEGORY}
-    EXTENSION_ICONURL ${EXTENSION_ICONURL}
-    EXTENSION_STATUS ${EXTENSION_STATUS}
-    EXTENSION_HOMEPAGE ${EXTENSION_HOMEPAGE}
-    EXTENSION_CONTRIBUTORS ${EXTENSION_CONTRIBUTORS}
-    EXTENSION_DESCRIPTION ${EXTENSION_DESCRIPTION}
-    EXTENSION_SCREENSHOTURLS ${EXTENSION_SCREENSHOTURLS}
-    EXTENSION_DEPENDS ${EXTENSION_DEPENDS}
-    DESTINATION_DIR ${CMAKE_CURRENT_BINARY_DIR}
-    SLICER_WC_REVISION ${Slicer_WC_REVISION}
-    SLICER_WC_ROOT ${Slicer_WC_ROOT}
-    )
 endif()
 
 #-----------------------------------------------------------------------------
