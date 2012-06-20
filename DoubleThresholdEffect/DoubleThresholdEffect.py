@@ -245,6 +245,8 @@ class DoubleThresholdEffectTool(Effect.EffectTool):
     # class instances
     self.lut = None
     self.thresh = None
+    self.outter_thresh = None
+    self.add_thresh = None
     self.map = None
 
     # feedback actor
@@ -337,8 +339,8 @@ class DoubleThresholdEffectTool(Effect.EffectTool):
     self.lut.SetTableRange( 0, 2 )
     self.lut.SetTableValue( 0,  0, 0, 0,  0 )
     r,g,b,a = color
-    self.lut.SetTableValue( 1,  r, g, b,  a )
-    #self.lut.SetTableValue( 2,  r, g, b,  a )
+    self.lut.SetTableValue( 1,  r, g, b,  a/3 )
+    self.lut.SetTableValue( 2,  r, g, b,  a )
 
     if not self.map:
       self.map = vtk.vtkImageMapToRGBA()
@@ -349,15 +351,33 @@ class DoubleThresholdEffectTool(Effect.EffectTool):
       self.thresh = vtk.vtkImageThreshold()
     sliceLogic = self.sliceWidget.sliceLogic()
     backgroundLogic = sliceLogic.GetBackgroundLayer()
-#    backgroundNodeName = backgroundNode.GetName()
-#    backgroundImage = sitk.ReadImage( sitkUtils.GetSlicerITKReadWriteAddress( backgroundNodeName ) )
 
     self.thresh.SetInput( backgroundLogic.GetReslice().GetOutput() )
     self.thresh.ThresholdBetween( self.min, self.max )
     self.thresh.SetInValue( 1 )
     self.thresh.SetOutValue( 0 )
     self.thresh.SetOutputScalarTypeToUnsignedChar()
-    self.map.SetInput( self.thresh.GetOutput() )
+
+    if not self.outter_thresh:
+      self.outter_thresh = vtk.vtkImageThreshold()
+
+    sliceLogic = self.sliceWidget.sliceLogic()
+    backgroundLogic = sliceLogic.GetBackgroundLayer()
+
+    self.outter_thresh.SetInput( backgroundLogic.GetReslice().GetOutput() )
+    self.outter_thresh.ThresholdBetween( self.outer_min, self.outer_max )
+    self.outter_thresh.SetInValue( 1 )
+    self.outter_thresh.SetOutValue( 0 )
+    self.outter_thresh.SetOutputScalarTypeToUnsignedChar()
+
+    if not self.add_thresh:
+      self.add_thresh = vtk.vtkImageMathematics()
+
+    self.add_thresh.SetInput1( self.thresh.GetOutput() )
+    self.add_thresh.SetInput2( self.outter_thresh.GetOutput() )
+    self.add_thresh.SetOperationToAdd()
+
+    self.map.SetInput( self.add_thresh.GetOutput() )
 
     self.map.Update()
 
