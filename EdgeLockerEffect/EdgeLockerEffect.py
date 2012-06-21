@@ -4,7 +4,9 @@ import EditorLib
 from EditorLib.EditOptions import HelpButton
 from EditorLib.EditOptions import EditOptions
 from EditorLib import EditUtil
-from EditorLib import LabelEffect
+
+
+import math
 
 #
 # The Editor Extension itself.
@@ -29,6 +31,41 @@ class EdgeLockerEffectOptions(Effect.EffectOptions):
 
   def create(self):
     super(EdgeLockerEffectOptions,self).create()
+
+    self.minimumSigma = .1
+    self.maximumSigma = 10
+
+    self.sigmaFrame = qt.QFrame(self.frame)
+    self.sigmaFrame.setLayout(qt.QHBoxLayout())
+    self.frame.layout().addWidget(self.sigmaFrame)
+    self.widgets.append(self.sigmaFrame)
+
+    self.sigmaLabel = qt.QLabel("Sigma", self.frame)
+    self.sigmaLabel.setToolTip("Set the sigma used for edge detection.")
+    self.sigmaFrame.layout().addWidget(self.sigmaLabel)
+    self.widgets.append(self.sigmaLabel)
+
+    self.sigmaSlider = qt.QSlider( qt.Qt.Horizontal, self.frame )
+    self.sigmaFrame.layout().addWidget(self.sigmaSlider)
+    self.widgets.append(self.sigmaSlider)
+
+    self.sigmaSpinBox = qt.QDoubleSpinBox(self.frame)
+    self.sigmaSpinBox.setToolTip("Set the sigma used for edge detection in millimeters.")
+    self.sigmaSpinBox.suffix = "mm"
+
+    self.sigmaFrame.layout().addWidget(self.sigmaSpinBox)
+    self.widgets.append(self.sigmaSpinBox)
+
+    self.sigmaSpinBox.minimum = self.minimumSigma
+    self.sigmaSlider.minimum = self.minimumSigma
+    self.sigmaSpinBox.maximum = self.maximumSigma
+    self.sigmaSlider.maximum = self.maximumSigma
+
+    decimals = math.floor(math.log(self.minimumSigma,10))
+    if decimals < 0:
+      self.sigmaSpinBox.decimals = -decimals + 2
+
+
     self.apply = qt.QPushButton("Apply", self.frame)
     self.apply.setToolTip("Apply the extension operation")
     self.frame.layout().addWidget(self.apply)
@@ -138,6 +175,8 @@ class EdgeLockerEffectLogic(LabelEffect.LabelEffectLogic):
 
   def doit(self):
 
+    sigma = 1.0
+
     labelLogic = self.sliceLogic.GetLabelLayer()
     labelNode = labelLogic.GetVolumeNode()
     labelNodeName = labelNode.GetName()
@@ -149,7 +188,7 @@ class EdgeLockerEffectLogic(LabelEffect.LabelEffectLogic):
     backgroundNodeName = backgroundNode.GetName()
     backgroundImage = sitk.ReadImage( sitkUtils.GetSlicerITKReadWriteAddress( backgroundNodeName ) )
 
-    featureImage = sitk.GradientMagnitudeRecursiveGaussian( backgroundImage, 1.0 );
+    featureImage = sitk.GradientMagnitudeRecursiveGaussian( backgroundImage, sigma );
     f = sitk.MorphologicalWatershedFromMarkersImageFilter()
     f.SetMarkWatershedLine( False )
     f.SetFullyConnected( False )
