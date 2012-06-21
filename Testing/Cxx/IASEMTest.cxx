@@ -21,5 +21,5 @@ extern "C" MODULE_IMPORT int ModuleEntryPoint(int, char* []);
 
 void RegisterTests()
 {
-  StringToTestFunctionMap["ModuleEntryPoint"] = ModuleEntryPoint;
+//  StringToTestFunctionMap["ModuleEntryPoint"] = ModuleEntryPoint;
 }

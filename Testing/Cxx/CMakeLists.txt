@@ -8,7 +8,7 @@ set(TEMP "${CMAKE_BINARY_DIR}/Testing/Temporary")
 set(CLP ${EXTENSION_NAME})
 
 add_executable(${CLP}Test ${CLP}Test.cxx)
-target_link_libraries(${CLP}Test ${CLP}Lib)
+target_link_libraries(${CLP}Test ${cli_module_target_libraries} ${ITK_LIBRARIES} )
 set_target_properties(${CLP}Test PROPERTIES LABELS ${CLP})
 
 set(testname ${CLP}Test)
