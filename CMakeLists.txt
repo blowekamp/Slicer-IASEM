@@ -22,7 +22,10 @@ if(NOT Slicer_SOURCE_DIR)
   include(${Slicer_USE_FILE})
 
   if(Slicer_USE_SimpleITK)
+    
+    # this find is needed to define SimpleITK_USE_FILE
     find_package(SimpleITK REQUIRED)
+
     include(${SimpleITK_USE_FILE})
   else()
     message(WARNING "Slicer is not configured for SimpleITK.\n Some modules will be disabled.")
@@ -33,10 +36,14 @@ endif()
 # Each module in the extension is placed in it's own directory
 add_subdirectory( BinShrink )
 
+add_subdirectory( DoubleThresholdEffect )
+add_subdirectory( EdgeLockerEffect )
+add_subdirectory( BinaryWatershed )
+
 if(Slicer_USE_SimpleITK)
   add_subdirectory( SimpleTest )
   add_subdirectory( SpacingAwareCurvatureDiffusion )
-  add_subdirectory( DoubleThresholdEffect )
+
 endif()
 
 #-----------------------------------------------------------------------------
