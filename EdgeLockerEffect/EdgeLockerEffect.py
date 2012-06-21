@@ -13,22 +13,16 @@ from EditorLib import LabelEffect
 #
 
 #
-# EdgeLockerEffectOptions - see LabelEffect, EditOptions and Effect for superclasses
+# EdgeLockerEffectOptions - see Effect for superclass
 #
 
-class EdgeLockerEffectOptions(EditorLib.LabelEffectOptions):
+class EdgeLockerEffectOptions(Effect.EffectOptions):
   """ EdgeLockerEffect-specfic gui
   """
 
   def __init__(self, parent=0):
     super(EdgeLockerEffectOptions,self).__init__(parent)
 
-    # self.attributes should be tuple of options:
-    # 'MouseTool' - grabs the cursor
-    # 'Nonmodal' - can be applied while another is active
-    # 'Disabled' - not available
-    self.attributes = ('MouseTool')
-    self.displayName = 'EdgeLockerEffect Effect'
 
   def __del__(self):
     super(EdgeLockerEffectOptions,self).__del__()
@@ -40,7 +34,8 @@ class EdgeLockerEffectOptions(EditorLib.LabelEffectOptions):
     self.frame.layout().addWidget(self.apply)
     self.widgets.append(self.apply)
 
-    HelpButton(self.frame, "This is a sample with no real functionality.")
+    # todo
+    HelpButton(self.frame, "This will be the best editor effect ever...")
 
     self.apply.connect('clicked()', self.onApply)
 
@@ -83,7 +78,6 @@ class EdgeLockerEffectOptions(EditorLib.LabelEffectOptions):
     self.parameterNode.SetDisableModifiedEvent(disableState)
     if not disableState:
       self.parameterNode.InvokePendingModifiedEvent()
-
 
 #
 # EdgeLockerEffectTool
@@ -141,6 +135,7 @@ class EdgeLockerEffectLogic(LabelEffect.LabelEffectLogic):
   def apply(self,xy):
     pass
 
+
   def doit(self):
 
     labelLogic = self.sliceLogic.GetLabelLayer()
@@ -154,22 +149,6 @@ class EdgeLockerEffectLogic(LabelEffect.LabelEffectLogic):
     backgroundNodeName = backgroundNode.GetName()
     backgroundImage = sitk.ReadImage( sitkUtils.GetSlicerITKReadWriteAddress( backgroundNodeName ) )
 
-
-#    ls = sitk.BinaryThreshold( labelImage, 1, 1, 0, 2 )
-#    ls = sitk.Cast( ls, sitk.sitkFloat32) - 1
-
-#    feature = sitk.SmoothingRecursiveGaussian( backgroundImage, 1.0 );
-
-#    filter = sitk.LaplacianSegmentationLevelSetImageFilter( )
-#    filter.SetNumberOfIterations( 10 )
-#    filter.SetMaximumRMSError( 0 )
-#    filter.SetPropagationScaling( 1.0 )
-#    filter.SetCurvatureScaling( 0.0 )
-#    ls = filter.Execute( ls, feature )
-#    print filter    
-    
-#   sitk.WriteImage( sitk.BinaryThreshold( ls, -99999, 0 ), sitkUtils.GetSlicerITKReadWriteAddress( labelNodeName ) )
-    
     featureImage = sitk.GradientMagnitudeRecursiveGaussian( backgroundImage, 1.0 );
     f = sitk.MorphologicalWatershedFromMarkersImageFilter()
     f.SetMarkWatershedLine( False )
@@ -182,7 +161,7 @@ class EdgeLockerEffectLogic(LabelEffect.LabelEffectLogic):
 # The EdgeLockerEffectExtension class definition
 #
 
-class EdgeLockerEffectExtension(LabelEffect.LabelEffect):
+class EdgeLockerEffectExtension(Effect.Effect):
   """Organizes the Options, Tool, and Logic classes into a single instance
   that can be managed by the EditBox
   """
@@ -217,23 +196,19 @@ class EdgeLockerEffect:
   def __init__(self, parent):
     parent.title = "Editor EdgeLockerEffect Effect"
     parent.categories = ["Developer Tools.Editor Extensions"]
-    parent.contributors = ["Steve Pieper (Isomics)"] # insert your name in the list
+    parent.contributors = ["Bradley Lowekamp"]
     parent.helpText = """
-    Example of an editor extension.  No module interface here, only in the Editor module
+    Grow labels to distinguishing boundaries. This used ITK's MorphologicalWatershedFromMarkersImageFilter.
     """
     parent.acknowledgementText = """
     This editor extension was developed by
-    <Author>, <Institution>
+    Bradley Lowekamp, National Library of Medicine (C)
     based on work by:
     Steve Pieper, Isomics, Inc.
     based on work by:
     Jean-Christophe Fillion-Robin, Kitware Inc.
     and was partially funded by NIH grant 3P41RR013218.
     """
-
-    # TODO:
-    # don't show this module - it only appears in the Editor module
-    #parent.hidden = True
 
     # Add this extension to the editor's list for discovery when the module
     # is created.  Since this module may be discovered before the Editor itself,
@@ -261,5 +236,3 @@ class EdgeLockerEffectWidget:
 
   def exit(self):
     pass
-
-
