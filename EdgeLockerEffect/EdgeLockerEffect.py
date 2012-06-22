@@ -68,13 +68,23 @@ class EdgeLockerEffectOptions(Effect.EffectOptions):
 
     self.apply = qt.QPushButton("Apply", self.frame)
     self.apply.setToolTip("Apply the extension operation")
+
     self.frame.layout().addWidget(self.apply)
     self.widgets.append(self.apply)
 
     # todo
     HelpButton(self.frame, "This will be the best editor effect ever...")
 
-    self.apply.connect('clicked()', self.onApply)
+
+
+#    self.sigmaSlider.connect( 'valueChanged(int)', self.sigmaSpinBox.setValue )
+#    self.sigmaSpinBox.connect( 'valueChanged(int)', self.sigmaSlider.setValue )
+
+#    self.connections.append( ( self.sigmaSlider, 'valueChanged(int)', self.sigmaSpinBox.setValue ) )
+#    self.connections.append( ( self.sigmaSpinBox, 'valueChanged(int)', self.sigmaSlider.setValue ) )
+    self.connections.append( ( self.sigmaSlider, 'valueChanged(int)', self.onSigmaValueChanged ) )
+#    self.connections.append( ( self.sigmaSpinBox, 'valueChanged(int)', self.onSigmaValueChanged ) )
+    self.connections.append( (self.apply, 'clicked()', self.onApply) )
 
     # Add vertical spacer
     self.frame.layout().addStretch(1)
@@ -94,7 +104,22 @@ class EdgeLockerEffectOptions(Effect.EffectOptions):
       self.parameterNodeTag = node.AddObserver(vtk.vtkCommand.ModifiedEvent, self.updateGUIFromMRML)
 
   def setMRMLDefaults(self):
+    print( "setMRMLDefaults" )
     super(EdgeLockerEffectOptions,self).setMRMLDefaults()
+
+    disableState = self.parameterNode.GetDisableModifiedEvent()
+    self.parameterNode.SetDisableModifiedEvent(1)
+    defaults = [
+      ("sigma", "1.0")
+    ]
+    for d in defaults:
+      param = "EdgeLockerEffect,"+d[0]
+      pvalue = self.parameterNode.GetParameter(param)
+      if pvalue == '':
+        self.parameterNode.SetParameter(param, d[1])
+
+    self.parameterNode.SetDisableModifiedEvent(disableState)
+
 
   def updateGUIFromMRML(self,caller,event):
     self.updatingGUI = True
@@ -106,9 +131,17 @@ class EdgeLockerEffectOptions(Effect.EffectOptions):
     logic.undoRedo = self.undoRedo
     logic.doit()
 
+  def onSigmaValueChanged(self, sigma):
+
+    print("onSigmaValueChanged")
+
+    for tool in self.tools:
+      tool.sigma = sigma
+
+    self.updateMRMLFromGUI()
+
   def updateMRMLFromGUI(self):
-    if self.updatingGUI:
-      return
+    print("updateMRMLFromGUI")
     disableState = self.parameterNode.GetDisableModifiedEvent()
     self.parameterNode.SetDisableModifiedEvent(1)
     super(EdgeLockerEffectOptions,self).updateMRMLFromGUI()
@@ -169,15 +202,16 @@ class EdgeLockerEffectLogic(LabelEffect.LabelEffectLogic):
   def __init__(self,sliceLogic):
     self.sliceLogic = sliceLogic
 
+    self.sigma = 1.0
+
   def apply(self,xy):
     pass
 
 
   def doit(self):
 
-    sigma = 1.0
 
-    labelLogic = self.sliceLogic.GetLabelLayer()
+    labelLogic = self.sliceLogic.GetLabelLayer(
     labelNode = labelLogic.GetVolumeNode()
     labelNodeName = labelNode.GetName()
     labelImage = sitk.ReadImage( sitkUtils.GetSlicerITKReadWriteAddress( labelNodeName ) )
@@ -188,7 +222,7 @@ class EdgeLockerEffectLogic(LabelEffect.LabelEffectLogic):
     backgroundNodeName = backgroundNode.GetName()
     backgroundImage = sitk.ReadImage( sitkUtils.GetSlicerITKReadWriteAddress( backgroundNodeName ) )
 
-    featureImage = sitk.GradientMagnitudeRecursiveGaussian( backgroundImage, sigma );
+    featureImage = sitk.GradientMagnitudeRecursiveGaussian( backgroundImage, self.sigma );
     f = sitk.MorphologicalWatershedFromMarkersImageFilter()
     f.SetMarkWatershedLine( False )
     f.SetFullyConnected( False )
