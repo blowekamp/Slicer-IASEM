@@ -36,7 +36,6 @@ class DoubleThresholdEffectOptions(Effect.EffectOptions):
 
   def __del__(self):
     super(DoubleThresholdEffectOptions,self).__del__()
-    print( "Deleting ", self.__class__.__name__ )
 
   def create(self):
     super(DoubleThresholdEffectOptions,self).create()
@@ -117,7 +116,6 @@ class DoubleThresholdEffectOptions(Effect.EffectOptions):
   def destroy(self):
     super(DoubleThresholdEffectOptions,self).destroy()
     self.timer.stop()
-    print( "Destroy ", self.__class__.__name__ )
 
   # note: this method needs to be implemented exactly as-is
   # in each leaf subclass so that "self" in the observer
@@ -202,7 +200,7 @@ class DoubleThresholdEffectOptions(Effect.EffectOptions):
     max = float(self.parameterNode.GetParameter("DoubleThresholdEffect,max"))
     outer_min = float(self.parameterNode.GetParameter("DoubleThresholdEffect,outer_min"))
     outer_max = float(self.parameterNode.GetParameter("DoubleThresholdEffect,outer_max"))
-    print( self.__class__.__name__, " MM: ", min, " ", max )
+
     for tool in self.tools:
       tool.min = min
       tool.max = max
