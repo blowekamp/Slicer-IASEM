@@ -211,7 +211,7 @@ class EdgeLockerEffectLogic(LabelEffect.LabelEffectLogic):
   def doit(self):
 
 
-    labelLogic = self.sliceLogic.GetLabelLayer(
+    labelLogic = self.sliceLogic.GetLabelLayer()
     labelNode = labelLogic.GetVolumeNode()
     labelNodeName = labelNode.GetName()
     labelImage = sitk.ReadImage( sitkUtils.GetSlicerITKReadWriteAddress( labelNodeName ) )
