@@ -1,19 +1,19 @@
 
 #-----------------------------------------------------------------------------
-set(MODULE_NAME EdgeLockerEffect)
+set(MODULE_NAME WatershedFromMarkerEffect)
 
 #-----------------------------------------------------------------------------
 set(MODULE_PYTHON_SCRIPTS
-  EdgeLockerEffect.py
+  WatershedFromMarkerEffect.py
   )
 
 set(MODULE_PYTHON_RESOURCES
-  EdgeLockerEffect.png
+  WatershedFromMarkerEffect.png
   )
 
 #-----------------------------------------------------------------------------
 ctkMacroCompilePythonScript(
-  TARGET_NAME EdgeLockerEffect
+  TARGET_NAME WatershedFromMarkerEffect
   SCRIPTS "${MODULE_PYTHON_SCRIPTS}"
   RESOURCES "${MODULE_PYTHON_RESOURCES}"
   DESTINATION_DIR ${CMAKE_BINARY_DIR}/${Slicer_QTSCRIPTEDMODULES_LIB_DIR}

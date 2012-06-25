@@ -15,22 +15,22 @@ import math
 #
 
 #
-# EdgeLockerEffectOptions - see Effect for superclass
+# WatershedFromMarkerEffectOptions - see Effect for superclass
 #
 
-class EdgeLockerEffectOptions(Effect.EffectOptions):
-  """ EdgeLockerEffect-specfic gui
+class WatershedFromMarkerEffectOptions(Effect.EffectOptions):
+  """ WatershedFromMarkerEffect-specfic gui
   """
 
   def __init__(self, parent=0):
-    super(EdgeLockerEffectOptions,self).__init__(parent)
+    super(WatershedFromMarkerEffectOptions,self).__init__(parent)
 
 
   def __del__(self):
-    super(EdgeLockerEffectOptions,self).__del__()
+    super(WatershedFromMarkerEffectOptions,self).__del__()
 
   def create(self):
-    super(EdgeLockerEffectOptions,self).create()
+    super(WatershedFromMarkerEffectOptions,self).create()
 
     labelVolume = self.editUtil.getLabelVolume()
     if labelVolume and labelVolume.GetImageData():
@@ -96,7 +96,7 @@ class EdgeLockerEffectOptions(Effect.EffectOptions):
     self.frame.layout().addStretch(1)
 
   def destroy(self):
-    super(EdgeLockerEffectOptions,self).destroy()
+    super(WatershedFromMarkerEffectOptions,self).destroy()
 
   # note: this method needs to be implemented exactly as-is
   # in each leaf subclass so that "self" in the observer
@@ -111,7 +111,7 @@ class EdgeLockerEffectOptions(Effect.EffectOptions):
 
   def setMRMLDefaults(self):
     print( "setMRMLDefaults" )
-    super(EdgeLockerEffectOptions,self).setMRMLDefaults()
+    super(WatershedFromMarkerEffectOptions,self).setMRMLDefaults()
 
     disableState = self.parameterNode.GetDisableModifiedEvent()
     self.parameterNode.SetDisableModifiedEvent(1)
@@ -119,7 +119,7 @@ class EdgeLockerEffectOptions(Effect.EffectOptions):
       ("sigma", "1.0")
     ]
     for d in defaults:
-      param = "EdgeLockerEffect,"+d[0]
+      param = "WatershedFromMarkerEffect,"+d[0]
       pvalue = self.parameterNode.GetParameter(param)
       if pvalue == '':
         self.parameterNode.SetParameter(param, d[1])
@@ -129,11 +129,11 @@ class EdgeLockerEffectOptions(Effect.EffectOptions):
 
   def updateGUIFromMRML(self,caller,event):
     self.updatingGUI = True
-    super(EdgeLockerEffectOptions,self).updateGUIFromMRML(caller,event)
+    super(WatershedFromMarkerEffectOptions,self).updateGUIFromMRML(caller,event)
     self.updatingGUI = False
 
   def onApply(self):
-    logic = EdgeLockerEffectLogic( self.editUtil.getSliceLogic() )
+    logic = WatershedFromMarkerEffectLogic( self.editUtil.getSliceLogic() )
     logic.undoRedo = self.undoRedo
 
     logic.sigma = float( self.sigmaSpinBox.value )
@@ -148,16 +148,16 @@ class EdgeLockerEffectOptions(Effect.EffectOptions):
     print("updateMRMLFromGUI")
     disableState = self.parameterNode.GetDisableModifiedEvent()
     self.parameterNode.SetDisableModifiedEvent(1)
-    super(EdgeLockerEffectOptions,self).updateMRMLFromGUI()
+    super(WatershedFromMarkerEffectOptions,self).updateMRMLFromGUI()
     self.parameterNode.SetDisableModifiedEvent(disableState)
     if not disableState:
       self.parameterNode.InvokePendingModifiedEvent()
 
 #
-# EdgeLockerEffectTool
+# WatershedFromMarkerEffectTool
 #
 
-class EdgeLockerEffectTool(LabelEffect.LabelEffectTool):
+class WatershedFromMarkerEffectTool(LabelEffect.LabelEffectTool):
   """
   One instance of this will be created per-view when the effect
   is selected.  It is responsible for implementing feedback and
@@ -168,10 +168,10 @@ class EdgeLockerEffectTool(LabelEffect.LabelEffectTool):
   """
 
   def __init__(self, sliceWidget):
-    super(EdgeLockerEffectTool,self).__init__(sliceWidget)
+    super(WatershedFromMarkerEffectTool,self).__init__(sliceWidget)
 
   def cleanup(self):
-    super(EdgeLockerEffectTool,self).cleanup()
+    super(WatershedFromMarkerEffectTool,self).cleanup()
 
   def processEvent(self, caller=None, event=None):
     """
@@ -181,17 +181,17 @@ class EdgeLockerEffectTool(LabelEffect.LabelEffectTool):
 
 
 #
-# EdgeLockerEffectLogic
+# WatershedFromMarkerEffectLogic
 #
 
-class EdgeLockerEffectLogic(LabelEffect.LabelEffectLogic):
+class WatershedFromMarkerEffectLogic(LabelEffect.LabelEffectLogic):
   """
   This class contains helper methods for a given effect
-  type.  It can be instanced as needed by an EdgeLockerEffectTool
-  or EdgeLockerEffectOptions instance in order to compute intermediate
+  type.  It can be instanced as needed by an WatershedFromMarkerEffectTool
+  or WatershedFromMarkerEffectOptions instance in order to compute intermediate
   results (say, for user feedback) or to implement the final
   segmentation editing operation.  This class is split
-  from the EdgeLockerEffectTool so that the operations can be used
+  from the WatershedFromMarkerEffectTool so that the operations can be used
   by other code without the need for a view context.
   """
 
@@ -228,43 +228,43 @@ class EdgeLockerEffectLogic(LabelEffect.LabelEffectLogic):
     labelNode.Modified()
 
 #
-# The EdgeLockerEffectExtension class definition
+# The WatershedFromMarkerEffectExtension class definition
 #
 
-class EdgeLockerEffectExtension(Effect.Effect):
+class WatershedFromMarkerEffectExtension(Effect.Effect):
   """Organizes the Options, Tool, and Logic classes into a single instance
   that can be managed by the EditBox
   """
 
   def __init__(self):
-    # name is used to define the name of the icon image resource (e.g. EdgeLockerEffect.png)
-    self.name = "EdgeLockerEffect"
+    # name is used to define the name of the icon image resource (e.g. WatershedFromMarkerEffect.png)
+    self.name = "WatershedFromMarkerEffect"
     # tool tip is displayed on mouse hover
     self.toolTip = "Paint: circular paint brush for label map editing"
 
-    self.options = EdgeLockerEffectOptions
-    self.tool = EdgeLockerEffectTool
-    self.logic = EdgeLockerEffectLogic
+    self.options = WatershedFromMarkerEffectOptions
+    self.tool = WatershedFromMarkerEffectTool
+    self.logic = WatershedFromMarkerEffectLogic
 
 """ Test:
 
 sw = slicer.app.layoutManager().sliceWidget('Red')
 import EditorLib
-pet = EditorLib.EdgeLockerEffectTool(sw)
+pet = EditorLib.WatershedFromMarkerEffectTool(sw)
 
 """
 
 #
-# EdgeLockerEffect
+# WatershedFromMarkerEffect
 #
 
-class EdgeLockerEffect:
+class WatershedFromMarkerEffect:
   """
   This class is the 'hook' for slicer to detect and recognize the extension
   as a loadable scripted module
   """
   def __init__(self, parent):
-    parent.title = "Editor EdgeLockerEffect Effect"
+    parent.title = "Editor WatershedFromMarkerEffect Effect"
     parent.categories = ["Developer Tools.Editor Extensions"]
     parent.contributors = ["Bradley Lowekamp"]
     parent.helpText = """
@@ -287,13 +287,13 @@ class EdgeLockerEffect:
       slicer.modules.editorExtensions
     except AttributeError:
       slicer.modules.editorExtensions = {}
-    slicer.modules.editorExtensions['EdgeLockerEffect'] = EdgeLockerEffectExtension
+    slicer.modules.editorExtensions['WatershedFromMarkerEffect'] = WatershedFromMarkerEffectExtension
 
 #
-# EdgeLockerEffectWidget
+# WatershedFromMarkerEffectWidget
 #
 
-class EdgeLockerEffectWidget:
+class WatershedFromMarkerEffectWidget:
   def __init__(self, parent = None):
     self.parent = parent
 

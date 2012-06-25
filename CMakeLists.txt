@@ -22,13 +22,13 @@ if(NOT Slicer_SOURCE_DIR)
   include(${Slicer_USE_FILE})
 
   if(Slicer_USE_SimpleITK)
-    
+
     # this find is needed to define SimpleITK_USE_FILE
     find_package(SimpleITK REQUIRED)
 
     include(${SimpleITK_USE_FILE})
   else()
-    message(WARNING "Slicer is not configured for SimpleITK.\n Some modules will be disabled.")
+    message(WARNING "Slicer is not configured for SimpleITK.\nSome modules will be disabled.")
   endif()
 endif()
 
@@ -37,7 +37,7 @@ endif()
 add_subdirectory( BinShrink )
 
 add_subdirectory( DoubleThresholdEffect )
-add_subdirectory( EdgeLockerEffect )
+add_subdirectory( WatershedFromMarker )
 add_subdirectory( BinaryWatershed )
 
 if(Slicer_USE_SimpleITK)
@@ -53,6 +53,6 @@ endif()
 
 #-----------------------------------------------------------------------------
 if(NOT Slicer_SOURCE_DIR)
-  include(${Slicer_EXTENSION_CPACK})
+#  include(${Slicer_EXTENSION_CPACK})
 endif()
 
