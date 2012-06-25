@@ -32,8 +32,15 @@ class EdgeLockerEffectOptions(Effect.EffectOptions):
   def create(self):
     super(EdgeLockerEffectOptions,self).create()
 
-    self.minimumSigma = .1
-    self.maximumSigma = 10
+    labelVolume = self.editUtil.getLabelVolume()
+    if labelVolume and labelVolume.GetImageData():
+      spacing = labelVolume.GetSpacing()
+      self.minimumSigma = 0.1 * min(spacing)
+      self.maximumSigma = 100 * self.minimumSigma
+    else:
+      self.minimumSigma = 0.1
+      self.maximumSigma = 10
+
 
     self.sigmaFrame = qt.QFrame(self.frame)
     self.sigmaFrame.setLayout(qt.QHBoxLayout())
