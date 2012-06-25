@@ -84,13 +84,12 @@ class EdgeLockerEffectOptions(Effect.EffectOptions):
 
 
 
-#    self.sigmaSlider.connect( 'valueChanged(int)', self.sigmaSpinBox.setValue )
-#    self.sigmaSpinBox.connect( 'valueChanged(int)', self.sigmaSlider.setValue )
+    self.sigmaSlider.connect( 'valueChanged(int)', self.sigmaSpinBox.setValue )
+    self.sigmaSpinBox.connect( 'valueChanged(int)', self.sigmaSlider.setValue )
 
-#    self.connections.append( ( self.sigmaSlider, 'valueChanged(int)', self.sigmaSpinBox.setValue ) )
-#    self.connections.append( ( self.sigmaSpinBox, 'valueChanged(int)', self.sigmaSlider.setValue ) )
-    self.connections.append( ( self.sigmaSlider, 'valueChanged(int)', self.onSigmaValueChanged ) )
-#    self.connections.append( ( self.sigmaSpinBox, 'valueChanged(int)', self.onSigmaValueChanged ) )
+    # if either widget is changed both should change and this should be triggered
+    self.connections.append( ( self.sigmaSpinBox, 'valueChanged(double)', self.onSigmaValueChanged ) )
+
     self.connections.append( (self.apply, 'clicked()', self.onApply) )
 
     # Add vertical spacer
@@ -136,14 +135,12 @@ class EdgeLockerEffectOptions(Effect.EffectOptions):
   def onApply(self):
     logic = EdgeLockerEffectLogic( self.editUtil.getSliceLogic() )
     logic.undoRedo = self.undoRedo
+
+    logic.sigma = float( self.sigmaSpinBox.value )
+
     logic.doit()
 
   def onSigmaValueChanged(self, sigma):
-
-    print("onSigmaValueChanged")
-
-    for tool in self.tools:
-      tool.sigma = sigma
 
     self.updateMRMLFromGUI()
 
@@ -217,6 +214,7 @@ class EdgeLockerEffectLogic(LabelEffect.LabelEffectLogic):
 
   def doit(self):
 
+    print(" running with sigma parameter ", self.sigma )
 
     labelLogic = self.sliceLogic.GetLabelLayer()
     labelNode = labelLogic.GetVolumeNode()
@@ -229,7 +227,7 @@ class EdgeLockerEffectLogic(LabelEffect.LabelEffectLogic):
     backgroundNodeName = backgroundNode.GetName()
     backgroundImage = sitk.ReadImage( sitkUtils.GetSlicerITKReadWriteAddress( backgroundNodeName ) )
 
-    featureImage = sitk.GradientMagnitudeRecursiveGaussian( backgroundImage, self.sigma );
+    featureImage = sitk.GradientMagnitudeRecursiveGaussian( backgroundImage, float(self.sigma) );
     f = sitk.MorphologicalWatershedFromMarkersImageFilter()
     f.SetMarkWatershedLine( False )
     f.SetFullyConnected( False )
