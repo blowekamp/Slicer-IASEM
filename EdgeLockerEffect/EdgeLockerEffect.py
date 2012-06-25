@@ -177,15 +177,7 @@ class EdgeLockerEffectTool(LabelEffect.LabelEffectTool):
     """
     handle events from the render window interactor
     """
-    if event == "LeftButtonPressEvent":
-      xy = self.interactor.GetEventPosition()
-      sliceLogic = self.sliceWidget.sliceLogic()
-      logic = EdgeLockerEffectLogic(sliceLogic)
-      logic.apply(xy)
-      print("Got a %s at %s in %s", (event,str(xy),self.sliceWidget.sliceLogic().GetSliceNode().GetName()))
-      self.abortEvent(event)
-    else:
-      pass
+    pass
 
 
 #
