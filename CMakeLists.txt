@@ -60,15 +60,19 @@ endif()
 
 #-----------------------------------------------------------------------------
 # Each module in the extension is placed in it's own directory
+
+# standard ITK CLI module
 add_subdirectory( BinShrink )
 
-add_subdirectory( DoubleThresholdEffect )
-add_subdirectory( WatershedFromMarker )
-add_subdirectory( BinaryWatershed )
-
 if(Slicer_USE_SimpleITK)
+
   add_subdirectory( SimpleTest )
   add_subdirectory( SpacingAwareCurvatureDiffusion )
+
+  # scripted SimpleITK Editor Effects
+  add_subdirectory( DoubleThresholdEffect )
+  add_subdirectory( WatershedFromMarker )
+  add_subdirectory( BinaryWatershed )
 
 endif()
 
