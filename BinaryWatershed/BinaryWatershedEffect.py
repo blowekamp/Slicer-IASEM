@@ -111,15 +111,7 @@ class BinaryWatershedEffectTool(LabelEffect.LabelEffectTool):
     """
     handle events from the render window interactor
     """
-    if event == "LeftButtonPressEvent":
-      xy = self.interactor.GetEventPosition()
-      sliceLogic = self.sliceWidget.sliceLogic()
-      logic = BinaryWatershedEffectLogic(sliceLogic)
-      logic.apply(xy)
-      print("Got a %s at %s in %s", (event,str(xy),self.sliceWidget.sliceLogic().GetSliceNode().GetName()))
-      self.abortEvent(event)
-    else:
-      pass
+    pass
 
 
 #
@@ -138,7 +130,7 @@ class BinaryWatershedEffectLogic(LabelEffect.LabelEffectLogic):
   """
 
   def __init__(self,sliceLogic):
-    self.sliceLogic = sliceLogic
+    super(BinaryWatershedEffectLogic,self).__init__(sliceLogic)
 
   def apply(self,xy):
     pass
@@ -151,13 +143,7 @@ class BinaryWatershedEffectLogic(LabelEffect.LabelEffectLogic):
     labelImage = sitk.ReadImage( sitkUtils.GetSlicerITKReadWriteAddress( labelNodeName ) )
 
 
-    backgroundLogic = self.sliceLogic.GetBackgroundLayer()
-    backgroundNode = backgroundLogic.GetVolumeNode()
-    backgroundNodeName = backgroundNode.GetName()
-    backgroundImage = sitk.ReadImage( sitkUtils.GetSlicerITKReadWriteAddress( backgroundNodeName ) )
-
-
-    labelID = 1
+    labelID = self.editUtil.getLabel()
     level = 1
 
     l = sitk.BinaryThreshold( labelImage, labelID, labelID, 1, 0 )
@@ -167,13 +153,13 @@ class BinaryWatershedEffectLogic(LabelEffect.LabelEffectLogic):
     d = sitk.SignedMaurerDistanceMap( filled,
                                       inInsideIsPositive = False,
                                       inSquaredDistance = False,
-                                      inUseImageSpacing = False )
+                                      inUseImageSpacing = True )
     del filled
 
     d = sitk.Threshold( d, -1e23, 0, 0 )
 
 
-    ws = sitk.MorphologicalWatershed( d, inMarkWatershedLine=False, inLevel = level )
+    ws = sitk.MorphologicalWatershed( d, inMarkWatershedLine=True, inLevel = level )
     del d
 
     ws = sitk.Mask( ws, l )
@@ -182,6 +168,7 @@ class BinaryWatershedEffectLogic(LabelEffect.LabelEffectLogic):
     sitk.WriteImage( ws, sitkUtils.GetSlicerITKReadWriteAddress( labelNodeName ) )
     labelNode.GetImageData().Modified()
     labelNode.Modified()
+
 
 #
 # The BinaryWatershedEffectExtension class definition
