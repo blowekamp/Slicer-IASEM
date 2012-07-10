@@ -110,7 +110,6 @@ class WatershedFromMarkerEffectOptions(Effect.EffectOptions):
       self.parameterNodeTag = node.AddObserver(vtk.vtkCommand.ModifiedEvent, self.updateGUIFromMRML)
 
   def setMRMLDefaults(self):
-    print( "setMRMLDefaults" )
     super(WatershedFromMarkerEffectOptions,self).setMRMLDefaults()
 
     disableState = self.parameterNode.GetDisableModifiedEvent()
@@ -145,7 +144,6 @@ class WatershedFromMarkerEffectOptions(Effect.EffectOptions):
     self.updateMRMLFromGUI()
 
   def updateMRMLFromGUI(self):
-    print("updateMRMLFromGUI")
     disableState = self.parameterNode.GetDisableModifiedEvent()
     self.parameterNode.SetDisableModifiedEvent(1)
     super(WatershedFromMarkerEffectOptions,self).updateMRMLFromGUI()
