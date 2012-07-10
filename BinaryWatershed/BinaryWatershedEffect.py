@@ -162,7 +162,7 @@ class BinaryWatershedEffectLogic(LabelEffect.LabelEffectLogic):
     ws = sitk.MorphologicalWatershed( d, inMarkWatershedLine=True, inLevel = level )
     del d
 
-    ws = sitk.Mask( ws, l )
+    ws = sitk.Mask( sitk.Cast( ws, labelImage.GetPixelIDValue() ), l )
     del l
 
     sitk.WriteImage( ws, sitkUtils.GetSlicerITKReadWriteAddress( labelNodeName ) )
