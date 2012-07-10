@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>@EXTENSION_CATEGORY@</category>
+  <category>@MODULE_CATEGORY@</category>
   <title>@MODULE_NAME@</title>
   <description>@MODULE_DESCRIPTION@</description>
   <version>@MODULE_MAJOR_VERSION@.@MODULE_MINOR_VERSION@.@MODULE_PATCH_VERSION@-@MODULE_STATUS@</version>
