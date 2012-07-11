@@ -226,7 +226,7 @@ class WatershedFromMarkerEffectLogic(LabelEffect.LabelEffectLogic):
     f = sitk.MorphologicalWatershedFromMarkersImageFilter()
     f.SetMarkWatershedLine( False )
     f.SetFullyConnected( False )
-    sitk.WriteImage( f.Execute( featureImage, labelImage ), sitkUtils.GetSlicerITKReadWriteAddress( labelNodeName ) )
+    sitk.WriteImage( sitk.Cast( f.Execute( featureImage, labelImage ), sitk.sitkUInt16 ), sitkUtils.GetSlicerITKReadWriteAddress( labelNodeName ) )
     labelNode.GetImageData().Modified()
     labelNode.Modified()
 
