@@ -142,6 +142,10 @@ class BinaryWatershedEffectLogic(LabelEffect.LabelEffectLogic):
     labelNodeName = labelNode.GetName()
     labelImage = sitk.ReadImage( sitkUtils.GetSlicerITKReadWriteAddress( labelNodeName ) )
 
+    # store a backup copy of the label map for undo
+    # (this happens in it's own thread, so it is cheap)
+    if self.undoRedo:
+      self.undoRedo.saveState()
 
     labelID = self.editUtil.getLabel()
     level = 1

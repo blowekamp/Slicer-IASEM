@@ -217,6 +217,11 @@ class WatershedFromMarkerEffectLogic(LabelEffect.LabelEffectLogic):
     backgroundNodeName = backgroundNode.GetName()
     backgroundImage = sitk.ReadImage( sitkUtils.GetSlicerITKReadWriteAddress( backgroundNodeName ) )
 
+    # store a backup copy of the label map for undo
+    # (this happens in it's own thread, so it is cheap)
+    if self.undoRedo:
+      self.undoRedo.saveState()
+
     featureImage = sitk.GradientMagnitudeRecursiveGaussian( backgroundImage, float(self.sigma) );
     f = sitk.MorphologicalWatershedFromMarkersImageFilter()
     f.SetMarkWatershedLine( False )
