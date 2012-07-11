@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>@MODULE_CATEGORY@</category>
+  <title>@MODULE_NAME@</title>
+  <description><![CDATA[@MODULE_DESCRIPTION@]]></description>
+  <version>@MODULE_MAJOR_VERSION@.@MODULE_MINOR_VERSION@.@MODULE_PATCH_VERSION@-@MODULE_STATUS@</version>
+  <documentation-url>@MODULE_HOMEPAGE@</documentation-url>
+  <license>@MODULE_LICENSE_SHORT_DESCRIPTION@</license>
+  <contributor><![CDATA[@MODULE_CONTRIBUTORS@]]></contributor>
+  <acknowledgements><![CDATA[@MODULE_ACKNOWLEDGEMENTS@]]></acknowledgements>
+  <parameters>
+    <label>@MODULE_NAME@ Parameters</label>
+    <description><![CDATA[Parameters for the anisotropic diffusion algorithm]]></description>
+    <integer>
+      <name>labelID</name>
+      <flag>l</flag>
+      <longflag>label</longflag>
+      <description>The label value to perform the nucleus closing on.</description>
+      <label>Label Parameter</label>
+      <default>1</default>
+      <constraints>
+        <minimum>1</minimum>
+        <maximum>65535</maximum>
+        <step>1</step>
+      </constraints>
+    </integer>
+    <integer>
+      <name>radius</name>
+      <flag>r</flag>
+      <longflag>radius</longflag>
+      <description>Radius to dilate or smooth the label by.</description>
+      <label>Radius Parameter</label>
+      <default>10</default>
+      <constraints>
+        <minimum>1</minimum>
+        <maximum>50</maximum>
+        <step>1</step>
+      </constraints>
+    </integer>
+    <integer>
+      <name>pad</name>
+      <flag>p</flag>
+      <longflag>pad</longflag>
+      <description>Distance in pixel between in nucleus and the outter contour.</description>
+      <label>Pad Parameter</label>
+      <default>2</default>
+      <constraints>
+        <minimum>1</minimum>
+        <maximum>50</maximum>
+        <step>1</step>
+      </constraints>
+    </integer>
+  </parameters>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <image type="label">
+      <name>inputVolume</name>
+      <label>Input Volume</label>
+      <channel>input</channel>
+      <index>0</index>
+      <description><![CDATA[Input volume to be filtered]]></description>
+    </image>
+    <image type="label">
+      <name>outputVolume</name>
+      <label>Output Volume</label>
+      <channel>output</channel>
+      <index>1</index>
+      <description><![CDATA[Output filtered]]></description>
+    </image>
+  </parameters>
+</executable>
