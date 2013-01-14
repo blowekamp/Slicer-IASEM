@@ -1,12 +1,22 @@
 import os
-from __main__ import vtk, qt, ctk, slicer
-import EditorLib
+from __main__ import vtk
+from __main__ import qt
+from __main__ import ctk
+from __main__ import slicer
 from EditorLib.EditOptions import HelpButton
 from EditorLib.EditOptions import EditOptions
 from EditorLib import EditUtil
+from EditorLib import EditorLib
+from EditorLib import Effect
+from EditorLib import LabelEffect
 
+import threading
+from time import sleep
 
+import Queue
 import math
+import SimpleITK as sitk
+import sitkUtils
 
 #
 # The Editor Extension itself.
@@ -197,10 +207,73 @@ class WatershedFromMarkerEffectLogic(LabelEffect.LabelEffectLogic):
     self.sliceLogic = sliceLogic
 
     self.sigma = 1.0
+    self.main_queue = Queue.Queue()
+    self.main_queue_running = False
+    self.thread = threading.Thread()
 
   def apply(self,xy):
     pass
 
+  def thread_doit(self, backgroundImage, labelImage, sigma):
+    try:
+      self.main_queue.put(lambda:self.progressUpdate("Executing computing gradient..."))
+      featureImage = sitk.GradientMagnitudeRecursiveGaussian( backgroundImage, float(sigma) );
+      
+      self.main_queue.put(lambda:self.progressUpdate("Executing computing watersheds..."))
+      f = sitk.MorphologicalWatershedFromMarkersImageFilter()
+      f.SetMarkWatershedLine( False )
+      f.SetFullyConnected( False )
+      out = f.Execute( featureImage, labelImage )
+      self.main_queue.put(lambda:self.progressUpdate("Updating image..."))
+      out = sitk.Cast( out, sitk.sitkUInt16 )
+      self.main_queue.put(lambda:self.updateLabelNode(out))
+      self.main_queue.put(lambda:self.main_queue_stop)
+    except Exception as e:
+      print "Exception:", e
+
+  def main_queue_start(self):
+    """Begins monitoring of main_queue for callables"""
+    self.main_queue_running = True
+    qt.QTimer.singleShot(10, self.main_queue_process)
+
+  def main_queue_stop(self):
+    """Begins monitoring of main_queue for callables"""
+    self.main_queue_running = False
+    print "Stopping queue process"
+
+  def main_queue_process(self):
+    """processes the main_queue of callables"""
+    try:
+      # this sleep is needed to allow the other thread to aquire the GIL and resume executing
+
+      while not self.main_queue.empty():
+        sleep(0)
+        f = self.main_queue.get_nowait()
+        if callable(f):
+          f()
+
+      sleep(0)
+      if self.main_queue_running:
+        qt.QTimer.singleShot(10, self.main_queue_process)
+
+    except Exception as e:
+      print e
+
+
+  def updateLabelNode(self, image):
+
+      self.thread.join()
+      
+      labelLogic = self.sliceLogic.GetLabelLayer()
+      labelNode = labelLogic.GetVolumeNode()
+      labelNodeName = labelNode.GetName()
+      sitk.WriteImage( image, sitkUtils.GetSlicerITKReadWriteAddress( labelNodeName ) )
+      labelNode.GetImageData().Modified()
+      labelNode.Modified()
+
+  def progressUpdate(self,s):
+    print "Progress:", s
+  
 
   def doit(self):
 
@@ -222,13 +295,15 @@ class WatershedFromMarkerEffectLogic(LabelEffect.LabelEffectLogic):
     if self.undoRedo:
       self.undoRedo.saveState()
 
-    featureImage = sitk.GradientMagnitudeRecursiveGaussian( backgroundImage, float(self.sigma) );
-    f = sitk.MorphologicalWatershedFromMarkersImageFilter()
-    f.SetMarkWatershedLine( False )
-    f.SetFullyConnected( False )
-    sitk.WriteImage( sitk.Cast( f.Execute( featureImage, labelImage ), sitk.sitkUInt16 ), sitkUtils.GetSlicerITKReadWriteAddress( labelNodeName ) )
-    labelNode.GetImageData().Modified()
-    labelNode.Modified()
+    if self.thread.is_alive():
+      print "already executing"
+      return
+
+    self.thread = threading.Thread( target=lambda:self.thread_doit(backgroundImage, labelImage, self.sigma))
+    self.thread.start()
+
+    self.main_queue_start()
+
 
 #
 # The WatershedFromMarkerEffectExtension class definition
