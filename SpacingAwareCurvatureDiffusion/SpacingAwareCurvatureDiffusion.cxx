@@ -16,7 +16,7 @@ int main( int argc, char * argv[] )
     {
 
     sitk::Image img = sitk::ReadImage( inputVolume );
-    sitk::PixelIDValueType inputPixel = img.GetPixelIDValue();
+    sitk::PixelIDValueEnum inputPixel = img.GetPixelID();
     img = sitk::Cast( img, sitk::sitkFloat32 );
 
     std::vector<double> spacing = img.GetSpacing();
