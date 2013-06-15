@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 2.8.8)
 
+project(IASEMExtension)
+
 # Manditory
-set(_EXT_NAME IASEM) # Do not use 'project()'
+set(_EXT_NAME IASEM)
 set(_EXT_HOMEPAGE "http://www.slicer.org/slicerWiki/index.php/Slicer4:Developers:Projects:QtSlicer/Tutorials/ExtensionWriting")
 set(_EXT_CATEGORY "Microscopy")
 
@@ -19,37 +21,30 @@ set(_EXT_MINOR_VERSION 1)
 set(_EXT_PATCH_VERSION 0)
 set(_EXT_STATUS "Experimental")
 
-#-----------------------------------------------------------------------------
-if(NOT Slicer_SOURCE_DIR)
-  # Manditory
-  set(EXTENSION_NAME ${_EXT_NAME} ) # Do not use 'project()'
-  set(EXTENSION_HOMEPAGE ${_EXT_HOMEPAGE} )
-  set(EXTENSION_CATEGORY ${_EXT_CATEGORY} )
 
-  # Optional
-  set(EXTENSION_CONTRIBUTORS ${_EXT_CONTRIBUTORS} )
-  set(EXTENSION_ICONURL ${_EXT_ICONURL} )
-  set(EXTENSION_DESCRIPTION ${EXT_DESCRIPTION} )
-  set(EXTENSION_SCREENSHOTURLS ${_EXT_SCREENSHOTURLS} )
+# Manditory
+set(EXTENSION_NAME ${_EXT_NAME} )
+set(EXTENSION_HOMEPAGE ${_EXT_HOMEPAGE} )
+set(EXTENSION_CATEGORY ${_EXT_CATEGORY} )
 
-  # Legacy?
-  set(EXTENSION_ACKNOWLEDGEMENTS ${_EXT_ACKNOWLEDGEMENTS} )
+# Optional
+set(EXTENSION_CONTRIBUTORS ${_EXT_CONTRIBUTORS} )
+set(EXTENSION_ICONURL ${_EXT_ICONURL} )
+set(EXTENSION_DESCRIPTION ${EXT_DESCRIPTION} )
+set(EXTENSION_SCREENSHOTURLS ${_EXT_SCREENSHOTURLS} )
 
-  set(EXTENSION_MAJOR_VERSION ${_EXT_MAJOR_VERSION} )
-  set(EXTENSION_MINOR_VERSION ${_EXT_MINOR_VERSION} )
-  set(EXTENSION_PATCH_VERSION ${_EXT_PATCH_VERSION} )
-  set(EXTENSION_STATUS ${_EXT_STATUS} )
-endif()
+# Legacy?
+set(EXTENSION_ACKNOWLEDGEMENTS ${_EXT_ACKNOWLEDGEMENTS} )
 
-#-----------------------------------------------------------------------------
-if(NOT Slicer_SOURCE_DIR)
-  find_package(Slicer REQUIRED)
-  include(${Slicer_USE_FILE})
-endif()
+set(EXTENSION_MAJOR_VERSION ${_EXT_MAJOR_VERSION} )
+set(EXTENSION_MINOR_VERSION ${_EXT_MINOR_VERSION} )
+set(EXTENSION_PATCH_VERSION ${_EXT_PATCH_VERSION} )
+set(EXTENSION_STATUS ${_EXT_STATUS} )
 
+find_package(Slicer REQUIRED)
+include(${Slicer_USE_FILE})
 
 if(Slicer_USE_SimpleITK)
-
   # this find is needed to define SimpleITK_USE_FILE
   find_package(SimpleITK REQUIRED)
 
@@ -66,7 +61,7 @@ add_subdirectory( BinShrink )
 
 if(Slicer_USE_SimpleITK)
 
-  add_subdirectory( SimpleTest )
+  #add_subdirectory( SimpleTest )
   add_subdirectory( SpacingAwareCurvatureDiffusion )
 
   # scripted SimpleITK Editor Effects
@@ -82,7 +77,5 @@ if(BUILD_TESTING)
 endif()
 
 #-----------------------------------------------------------------------------
-if(NOT Slicer_SOURCE_DIR)
-  include(${Slicer_EXTENSION_CPACK})
-endif()
+include(${Slicer_EXTENSION_CPACK})
 

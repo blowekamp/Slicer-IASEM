@@ -4,13 +4,6 @@ cmake_minimum_required(VERSION 2.8.8)
 set(MODULE_NAME WatershedFromMarkerEffect)
 
 #-----------------------------------------------------------------------------
-if(NOT Slicer_SOURCE_DIR)
-  find_package(Slicer REQUIRED)
-  include(${Slicer_USE_FILE})
-endif()
-
-
-#-----------------------------------------------------------------------------
 set(MODULE_PYTHON_SCRIPTS
   WatershedFromMarkerEffect.py
   )
