@@ -28,7 +28,7 @@ int DoIt( int argc, char * argv[], T )
   typedef itk::ImageFileReader<InputImageType>  ReaderType;
   typedef itk::ImageFileWriter<OutputImageType> WriterType;
 
-  typedef itk::Local::BinShrinkImageFilter<
+  typedef itk::BinShrinkImageFilter<
     InputImageType, OutputImageType>  FilterType;
 
   typename ReaderType::Pointer reader = ReaderType::New();
@@ -41,11 +41,7 @@ int DoIt( int argc, char * argv[], T )
                                    CLPProcessInformation);
 
 
-#if ITK_VERSION_MAJOR < 4
-  unsigned int factors[3];
-#else
-    typename FilterType::Superclass::ShrinkFactorsType factors;
-#endif
+  typename FilterType::ShrinkFactorsType factors;
 
   factors[0] = neighborhood[0];
   factors[1] = neighborhood[1];
