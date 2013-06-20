@@ -227,7 +227,7 @@ class WatershedFromMarkerEffectLogic(LabelEffect.LabelEffectLogic):
       self.main_queue.put(lambda:self.progressUpdate("Updating image..."))
       out = sitk.Cast( out, sitk.sitkUInt16 )
       self.main_queue.put(lambda:self.updateLabelNode(out))
-      self.main_queue.put(lambda:self.main_queue_stop)
+      self.main_queue.put(lambda:self.main_queue_stop())
     except Exception as e:
       print "Exception:", e
 
