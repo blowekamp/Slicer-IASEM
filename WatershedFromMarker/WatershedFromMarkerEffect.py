@@ -47,17 +47,19 @@ class WatershedFromMarkerEffectOptions(Effect.EffectOptions):
     self.frame.layout().addWidget(self.sigmaFrame)
     self.widgets.append(self.sigmaFrame)
 
-    self.sigmaLabel = qt.QLabel("Sigma", self.frame)
-    self.sigmaLabel.setToolTip("Set the sigma used for edge detection.")
+    tip = "Increasing this value smooths the segmentation and reduces leaks. This is the sigma used for edge detection."
+    self.sigmaLabel = qt.QLabel("Object Scale: ", self.frame)
+    self.sigmaLabel.setToolTip(tip)
     self.sigmaFrame.layout().addWidget(self.sigmaLabel)
     self.widgets.append(self.sigmaLabel)
 
     self.sigmaSlider = qt.QSlider( qt.Qt.Horizontal, self.frame )
     self.sigmaFrame.layout().addWidget(self.sigmaSlider)
+    self.sigmaFrame.setToolTip(tip)
     self.widgets.append(self.sigmaSlider)
 
     self.sigmaSpinBox = qt.QDoubleSpinBox(self.frame)
-    self.sigmaSpinBox.setToolTip("Set the sigma used for edge detection in millimeters.")
+    self.sigmaSpinBox.setToolTip(tip)
     self.sigmaSpinBox.suffix = "mm"
 
     self.sigmaFrame.layout().addWidget(self.sigmaSpinBox)
@@ -79,8 +81,14 @@ class WatershedFromMarkerEffectOptions(Effect.EffectOptions):
     self.frame.layout().addWidget(self.apply)
     self.widgets.append(self.apply)
 
-    # todo
-    HelpButton(self.frame, "This will be the best editor effect ever...")
+    helpDoc = \
+        """Use this effect to apply the watersheds from markers segmentation from multiple initial labels.
+
+The input to this filter is current labelmap image which is expected to contain multiple labels as initial markss. The marks or labels are grown to fill the image and with edges defining the bondaries between. To segment a single object, mark the object, and then it is suggested to surround the object with a negative label on each axis.
+
+The "Object Scale" parameter is use to adjust the smoothness of the output image and prevent leakage. It is used internally for the sigma of the gradient magnitude.
+    """
+    HelpButton(self.frame, helpDoc)
 
 
 
@@ -204,8 +212,6 @@ class WatershedFromMarkerEffectLogic(LabelEffect.LabelEffectLogic):
 
   def doit(self):
 
-    print(" running with sigma parameter ", self.sigma )
-
     labelLogic = self.sliceLogic.GetLabelLayer()
     labelNode = labelLogic.GetVolumeNode()
     labelNodeName = labelNode.GetName()
@@ -275,12 +281,10 @@ class WatershedFromMarkerEffect:
     """
     parent.acknowledgementText = """
     This editor extension was developed by
-    Bradley Lowekamp, National Library of Medicine (C)
+    Bradley Lowekamp, NLM/MSC (C)
     based on work by:
     Steve Pieper, Isomics, Inc.
-    based on work by:
     Jean-Christophe Fillion-Robin, Kitware Inc.
-    and was partially funded by NIH grant 3P41RR013218.
     """
 
     # Add this extension to the editor's list for discovery when the module
