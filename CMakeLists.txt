@@ -66,7 +66,8 @@ if(Slicer_USE_SimpleITK)
 
   # scripted SimpleITK Editor Effects
   add_subdirectory( DoubleThresholdEffect )
-  add_subdirectory( WatershedFromMarker )
+  # now included in main repository
+  #add_subdirectory( WatershedFromMarker )
   add_subdirectory( BinaryWatershed )
 
 endif()
