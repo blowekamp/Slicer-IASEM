@@ -5,7 +5,7 @@ set(MODULE_NAME BinShrink)
 
 #-----------------------------------------------------------------------------
 set(MODULE_HOMEPAGE "${_EXT_HOMEPAGE}")
-set(MODULE_CATEGORY "Microscopy")
+set(MODULE_CATEGORY "${_EXT_CATEGORY}")
 set(MODULE_CONTRIBUTORS "${_EXT_CONTRIBUTORS}")
 set(MODULE_DESCRIPTION "${_EXT_DESCRIPTION}")
 set(MODULE_ACKNOWLEDGEMENTS "${_EXT_ACKNOWLEDGEMENTS}")
