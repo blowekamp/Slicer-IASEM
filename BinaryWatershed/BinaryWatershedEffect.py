@@ -155,15 +155,15 @@ class BinaryWatershedEffectLogic(LabelEffect.LabelEffectLogic):
     filled = sitk.BinaryFillhole( l )
     
     d = sitk.SignedMaurerDistanceMap( filled,
-                                      inInsideIsPositive = False,
-                                      inSquaredDistance = False,
-                                      inUseImageSpacing = True )
+                                      insideIsPositive = False,
+                                      squaredDistance = False,
+                                      useImageSpacing = True )
     del filled
 
     d = sitk.Threshold( d, -1e23, 0, 0 )
 
 
-    ws = sitk.MorphologicalWatershed( d, inMarkWatershedLine=True, inLevel = level )
+    ws = sitk.MorphologicalWatershed( d, markWatershedLine=False, level = level )
     del d
 
     ws = sitk.Mask( sitk.Cast( ws, labelImage.GetPixelIDValue() ), l )
