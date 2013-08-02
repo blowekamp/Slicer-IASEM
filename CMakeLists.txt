@@ -11,6 +11,7 @@ set(_EXT_ACKNOWLEDGEMENTS "This work could not have been done without the suppor
 set(_EXT_MAJOR_VERSION 0)
 set(_EXT_MINOR_VERSION 1)
 set(_EXT_PATCH_VERSION 0)
+set(_EXT_LICENSE_SHORT_DESCRIPTION "Apache License 2.0" )
 
 # Manditory
 set(_EXT_NAME IASEM)
