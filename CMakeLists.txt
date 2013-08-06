@@ -70,10 +70,6 @@ if(Slicer_USE_SimpleITK)
 
 endif()
 
-#-----------------------------------------------------------------------------
-if(BUILD_TESTING)
-  add_subdirectory(Testing)
-endif()
 
 #-----------------------------------------------------------------------------
 include(${Slicer_EXTENSION_CPACK})
