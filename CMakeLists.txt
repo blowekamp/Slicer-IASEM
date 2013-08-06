@@ -48,7 +48,7 @@ if(Slicer_USE_SimpleITK)
 
   include(${SimpleITK_USE_FILE})
 else()
-  message(WARNING "Slicer is not configured for SimpleITK.\nSome modules will be disabled.")
+  message(FATAL_ERROR "Slicer is not configured for SimpleITK.\nSome modules will be disabled.")
 endif()
 
 #-----------------------------------------------------------------------------
@@ -57,18 +57,15 @@ endif()
 # standard ITK CLI module
 add_subdirectory( BinShrink )
 
-if(Slicer_USE_SimpleITK)
+add_subdirectory( SpacingAwareCurvatureDiffusion )
 
-  #add_subdirectory( SimpleTest )
-  add_subdirectory( SpacingAwareCurvatureDiffusion )
+# scripted SimpleITK Editor Effects
+add_subdirectory( DoubleThresholdEffect )
+add_subdirectory( BinaryWatershed )
 
-  # scripted SimpleITK Editor Effects
-  add_subdirectory( DoubleThresholdEffect )
-  # now included in main repository
-  #add_subdirectory( WatershedFromMarker )
-  add_subdirectory( BinaryWatershed )
 
-endif()
+# now included in main repository
+#add_subdirectory( WatershedFromMarker )
 
 
 #-----------------------------------------------------------------------------
