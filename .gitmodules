@@ -1,0 +1,3 @@
+[submodule "External/itkBinShrink"]
+	path = External/itkBinShrink
+	url = git://github.com/blowekamp/itkBinShrink.git
