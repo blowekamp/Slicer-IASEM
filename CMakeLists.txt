@@ -56,6 +56,7 @@ endif()
 
 # standard ITK CLI module
 add_subdirectory( BinShrink )
+add_subdirectory( IASEMImport )
 
 add_subdirectory( SpacingAwareCurvatureDiffusion )
 

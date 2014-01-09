@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>@MODULE_CATEGORY@</category>
+  <title>IASEM Import</title>
+  <description>@MODULE_DESCRIPTION@</description>
+  <version>@MODULE_MAJOR_VERSION@.@MODULE_MINOR_VERSION@.@MODULE_PATCH_VERSION@-@MODULE_STATUS@</version>
+  <documentation-url>@MODULE_HOMEPAGE@</documentation-url>
+  <license>@MODULE_LICENSE_SHORT_DESCRIPTION@</license>
+  <contributor>@MODULE_CONTRIBUTORS@</contributor>
+  <acknowledgements>@MODULE_ACKNOWLEDGEMENTS@</acknowledgements>
+  <parameters>
+    <label>IASEM Import Parameters</label>
+    <description><![CDATA[Parameters for IASEM Import]]></description>
+    <integer-vector>
+      <name>binFactors</name>
+      <longflag>--bin</longflag>
+      <description><![CDATA[The amount to shrink the imported image in pixel size, with values of (XY), (XY,Z) or (X,Y,Z).]]></description>
+      <label>Shrink Factors</label>
+      <default>1,1,1</default>
+    </integer-vector>
+    <boolean>
+      <name>disableZBin</name>
+      <longflag>--disableZBin</longflag>
+      <label>Disable Z-Averaging</label>
+      <description><![CDATA[Disable binning or averaging for each pixel in the z-direction. This option enables a shrink image filter in the z-direction. By not using binning the importing may run faster because it needs to read fewer slice.]]></description>
+    </boolean>
+    <region multiple="false" coordinateSystem="ras">
+      <name>imageROI</name>
+      <label>Image ROI</label>
+      <channel>input</channel>
+      <longflag>imageROI</longflag>
+      <description><![CDATA[Label image which defines a ROI of interest to import from the volume.]]></description>
+      <default/>
+    </region>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    
+    <file fileExtensions=".hdf5,.mrc,.mha.,.vtk">
+      <name>input</name>
+      <longflag>--input</longflag>
+      <label>Input File</label>
+      <description><![CDATA[Input file containing a large 3D volume in a streamable format.]]></description>
+    </file>
+    <image>
+      <name>outputVolume</name>
+      <label>IASEM Volume</label>
+      <channel>output</channel>
+      <index>1</index>
+      <description><![CDATA[Output Volume]]></description>
+    </image>
+  </parameters>
+</executable>
