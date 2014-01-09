@@ -23,9 +23,11 @@ configure_file(
   )
 
 #-----------------------------------------------------------------------------
-set(MODULE_INCLUDE_DIRECTORIES
-  "${IASEMExtension_SOURCE_DIR}/External/itkBinShrink/include"
-  )
+if( ITK_VERSION VERSION_LESS "4.5" )
+  set(MODULE_INCLUDE_DIRECTORIES
+    "${IASEMExtension_SOURCE_DIR}/External/itkBinShrink/include"
+    )
+endif()
 
 set(MODULE_SRCS
   )
