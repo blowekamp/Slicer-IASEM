@@ -226,7 +226,7 @@ class LabelObjectStatisticsWidget:
         # set data as float with Qt::DisplayRole
         try:
           v = float(self.logic.labelStats[i,k])
-        except KeyError:
+        except (KeyError, TypeError):
           v = float('inf')
         item.setData(v,qt.Qt.DisplayRole)
         item.setToolTip(colorNode.GetColorName(i))
@@ -380,7 +380,7 @@ class LabelObjectStatisticsLogic:
           array.SetComponent(tuple, 0, index)
           try:
             v = float(self.labelStats[index,valueToPlot])
-          except KeyError:
+          except (KeyError, TypeError):
             v = float(0)
           array.SetComponent(tuple, 1, v)
           array.SetComponent(tuple, 2, 0)
