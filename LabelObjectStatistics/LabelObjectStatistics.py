@@ -26,7 +26,6 @@ Use this module to calculate counts and volumes for different labels of a label 
 
 class LabelObjectStatisticsWidget:
   def __init__(self, parent=None):
-    self.chartOptions = ("Count", "Volume mm^3", "Volume cc", "Min", "Max", "Mean", "StdDev")
     if not parent:
       self.parent = slicer.qMRMLWidget()
       self.parent.setLayout(qt.QVBoxLayout())
@@ -114,7 +113,6 @@ class LabelObjectStatisticsWidget:
     self.chartButton.toolTip = "Make a chart from the current statistics."
     self.chartFrame.layout().addWidget(self.chartButton)
     self.chartOption = qt.QComboBox()
-    self.chartOption.addItems(self.chartOptions)
     self.chartFrame.layout().addWidget(self.chartOption)
     self.chartIgnoreZero = qt.QCheckBox()
     self.chartIgnoreZero.setText('Ignore Zero')
@@ -170,6 +168,7 @@ class LabelObjectStatisticsWidget:
     else:
       self.logic = LabelObjectStatisticsLogic(self.grayscaleNode, self.labelNode)
     self.populateStats()
+    self.populateChartOption()
     if resampledLabelNode:
       slicer.mrmlScene.RemoveNode(resampledLabelNode)
     self.chartFrame.enabled = True
@@ -179,9 +178,12 @@ class LabelObjectStatisticsWidget:
   def onChart(self):
     """chart the label statistics
     """
-    valueToPlot = self.chartOptions[self.chartOption.currentIndex]
+    valueToPlot = self.chartOption.currentText
     ignoreZero = self.chartIgnoreZero.checked
-    self.logic.createStatsChart(self.labelNode,valueToPlot,ignoreZero)
+    if not valueToPlot is None:
+      self.logic.createStatsChart(self.labelNode,valueToPlot,ignoreZero)
+    else:
+      print "Selected item is unexpectedly None!"
 
   def onSave(self):
     """save the label statistics
@@ -222,7 +224,11 @@ class LabelObjectStatisticsWidget:
       for k in self.logic.keys:
         item = qt.QStandardItem()
         # set data as float with Qt::DisplayRole
-        item.setData(float(self.logic.labelStats[i,k]),qt.Qt.DisplayRole)
+        try:
+          v = float(self.logic.labelStats[i,k])
+        except KeyError:
+          v = float('inf')
+        item.setData(v,qt.Qt.DisplayRole)
         item.setToolTip(colorNode.GetColorName(i))
         self.model.setItem(row,col,item)
         self.items.append(item)
@@ -237,6 +243,10 @@ class LabelObjectStatisticsWidget:
       self.model.setHeaderData(col,1,k)
       col += 1
 
+  def populateChartOption(self):
+    self.chartOption.clear()
+    self.chartOption.addItems(self.logic.keys)
+
 class LabelObjectStatisticsLogic:
   """Implement the logic to calculate label statistics.
   Nodes are passed in as arguments.
@@ -246,7 +256,7 @@ class LabelObjectStatisticsLogic:
   def __init__(self, grayscaleNode, labelNode, fileName=None):
     #import numpy
 
-    self.keys = ("Index", "Count", "Volume mm^3", "Volume cc", "Min", "Max", "Mean", "StdDev")
+    self.keys = ["Label", "Count", "Volume mm^3", "Volume cc", "Min", "Max", "Mean", "StdDev"]
     cubicMMPerVoxel = reduce(lambda x,y: x*y, labelNode.GetSpacing())
     ccPerCubicMM = 0.001
 
@@ -270,7 +280,7 @@ class LabelObjectStatisticsLogic:
 
         # add an entry to the LabelStats list
         self.labelStats["Labels"].append(l)
-        self.labelStats[l,"Index"] = l
+        self.labelStats[l,"Label"] = l
         self.labelStats[l,"Count"] = sitkStats.GetCount(l)
         self.labelStats[l,"Volume mm^3"] = self.labelStats[l,"Count"] * cubicMMPerVoxel
         self.labelStats[l,"Volume cc"] = self.labelStats[l,"Volume mm^3"] * ccPerCubicMM
@@ -279,6 +289,64 @@ class LabelObjectStatisticsLogic:
         self.labelStats[l,"Mean"] = sitkStats.GetMean(l)
         self.labelStats[l,"StdDev"] = sitkStats.GetSigma(l)
         self.labelStats[l,"Sum"] = sitkStats.GetSum(l)
+
+    del sitkStats
+
+    sitkShapeStats = sitk.LabelShapeStatisticsImageFilter()
+    sitkShapeStats.ComputeFeretDiameterOff()
+    sitkShapeStats.ComputePerimeterOn()
+
+
+    sitkShapeStats.Execute( labelImage )
+
+
+    # use a set to accumulate attributes to make sure they are unuque
+    shapeAttributes = [
+#      'Number Of Pixels',
+#      'Physical Size',
+#      'Centroid',
+#      'Bounding Box',
+      'Number Of Pixels On Border',
+      'Perimeter On Border',
+      'Perimeter On Border Ratio',
+#      'Principal Moments',
+      'Principal Axes',
+      'Elongation',
+      'Perimeter',
+      'Roundness',
+      'Equivalent Spherical Radius',
+      'Equivalent Spherical Perimeter',
+#      'Equivalent Ellipsoid Diameter',
+      'Flatness',
+      'Feret Diameter'
+    ]
+
+
+    if not sitkShapeStats.GetComputeFeretDiameter():
+        shapeAttributes.remove( 'Feret Diameter' )
+
+    if not sitkShapeStats.GetComputePerimeter():
+        shapeAttributes.remove( 'Perimeter' )
+
+    # We don't have a good way to show
+    shapeAttributes.remove( 'Principal Axes' )
+
+    self.keys += shapeAttributes
+
+    for l in sitkShapeStats.GetLabels():
+       # add attributes form the Shape label object
+        for name in shapeAttributes:
+            attr = getattr(sitkShapeStats,"Get"+name.replace(' ', '') )(l)
+
+            self.labelStats[l, name] = attr
+
+    for l in sitkShapeStats.GetLabels():
+      attr =  getattr(sitkShapeStats,"Get"+"PrincipalMoments" )(l)
+      for i in range(1,4):
+        self.labelStats[l, "Principal Moments "+str(i) ] = attr[i-1]
+
+    self.keys += ["Principal Moments "+str(i) for i in range(1,4)]
+
 
         # this.InvokeEvent(vtkLabelStatisticsLogic::LabelStatsInnerLoop, (void*)"1")
 
@@ -310,7 +378,11 @@ class LabelObjectStatisticsLogic:
         index = self.labelStats["Labels"][i]
         if not (ignoreZero and index == 0):
           array.SetComponent(tuple, 0, index)
-          array.SetComponent(tuple, 1, self.labelStats[index,valueToPlot])
+          try:
+            v = float(self.labelStats[index,valueToPlot])
+          except KeyError:
+            v = float(0)
+          array.SetComponent(tuple, 1, v)
           array.SetComponent(tuple, 2, 0)
           tuple += 1
 
@@ -345,11 +417,12 @@ class LabelObjectStatisticsLogic:
       header += "\"%s\"" % k + ","
     header += "\"%s\"" % self.keys[-1] + "\n"
     csv = header
+
     for i in self.labelStats["Labels"]:
-      line = ""
-      for k in self.keys[:-1]:
-        line += str(self.labelStats[i,k]) + ","
-      line += str(self.labelStats[i,self.keys[-1]]) + "\n"
+
+      valuesAsStr = [ str(self.labelStats[i,k]) if (i,k) in self.labelStats else '' for k in self.keys ]
+      line = ",".join(valuesAsStr)
+      line += "\n"
       csv += line
     return csv
 
