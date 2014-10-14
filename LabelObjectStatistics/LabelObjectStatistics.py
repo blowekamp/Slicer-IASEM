@@ -466,6 +466,7 @@ class LabelObjectStatisticsTest(unittest.TestCase):
     """
     self.setUp()
     self.test_LabelObjectStatisticsBasic()
+    self.test_LabelObjectStatisticsWidget()
 
   def test_LabelObjectStatisticsBasic(self):
     """
@@ -499,3 +500,14 @@ class LabelObjectStatisticsTest(unittest.TestCase):
     self.assertTrue( warnings == "" )
 
     self.delayDisplay('test_LabelObjectStatisticsBasic passed!')
+
+  def test_LabelObjectStatisticsWidget(self):
+
+    self.delayDisplay("Starting test_LabelObjectStatisticsWidget")
+    m = slicer.util.mainWindow()
+    m.moduleSelector().selectModule('LabelObjectStatistics')
+
+
+    print dir(slicer.modules)
+
+    testWidget = slicer.modules.LabelObjectStatisticsWidget
