@@ -1,6 +1,7 @@
 import unittest
 from __main__ import vtk, qt, ctk, slicer
 import SimpleITK as sitk
+import sitkUtils
 
 #
 # LabelObjectStatistics
