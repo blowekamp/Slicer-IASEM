@@ -65,6 +65,9 @@ add_subdirectory( DoubleThresholdEffect )
 add_subdirectory( BinaryWatershed )
 
 
+# scripted Modules
+add_subdirectory(LabelObjectStatistics)
+
 # now included in main repository
 #add_subdirectory( WatershedFromMarker )
 
