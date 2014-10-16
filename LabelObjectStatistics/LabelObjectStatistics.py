@@ -467,6 +467,7 @@ class LabelObjectStatisticsTest(unittest.TestCase):
     self.setUp()
     self.test_LabelObjectStatisticsBasic()
     self.test_LabelObjectStatisticsWidget()
+    self.test_LabelObjectStatisticsLogic()
 
   def test_LabelObjectStatisticsBasic(self):
     """
@@ -502,7 +503,7 @@ class LabelObjectStatisticsTest(unittest.TestCase):
     self.delayDisplay('test_LabelObjectStatisticsBasic passed!')
 
   def test_LabelObjectStatisticsWidget(self):
-
+    return
     self.delayDisplay("Starting test_LabelObjectStatisticsWidget")
     m = slicer.util.mainWindow()
     m.moduleSelector().selectModule('LabelObjectStatistics')
@@ -511,3 +512,30 @@ class LabelObjectStatisticsTest(unittest.TestCase):
     print dir(slicer.modules)
 
     testWidget = slicer.modules.LabelObjectStatisticsWidget
+
+
+
+  def test_LabelObjectStatisticsLogic(self):
+
+
+    self.delayDisplay("Starting test_LabelObjectStatisticsLogic")
+
+    import SampleData
+    sampleDataLogic = SampleData.SampleDataLogic()
+    mrHead = sampleDataLogic.downloadMRHead()
+
+    img = sitkUtils.PullFromSlicer( mrHead.GetName() )
+
+    labelImg = sitk.OtsuMultipleThresholds(img, 3)
+
+    labelNodeName = "OtsuMultipleThresholdLabelMap"
+    sitkUtils.PushToSlicer(labelImg, "OtsuMultipleThresholdLabelMap", 2)
+
+    mrHeadLabel = slicer.util.getNode(labelNodeName)
+
+
+    logic = LabelObjectStatisticsLogic( mrHead, mrHeadLabel )
+    print logic.keys
+    print logic.labelStats
+
+    logic.saveStats("test_LabelObjectStatisticsLogic.csv")
