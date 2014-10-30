@@ -1,3 +1,6 @@
 [submodule "External/itkBinShrink"]
 	path = External/itkBinShrink
 	url = git://github.com/blowekamp/itkBinShrink.git
+[submodule "External/itkStreamingSinc"]
+	path = External/itkStreamingSinc
+	url = git://github.com/blowekamp/itkStreamingSinc.git
