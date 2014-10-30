@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>@MODULE_CATEGORY@</category>
+  <title>IASEM Import Series</title>
+  <description>@MODULE_DESCRIPTION@</description>
+  <version>@MODULE_MAJOR_VERSION@.@MODULE_MINOR_VERSION@.@MODULE_PATCH_VERSION@-@MODULE_STATUS@</version>
+  <documentation-url>@MODULE_HOMEPAGE@</documentation-url>
+  <license>@MODULE_LICENSE_SHORT_DESCRIPTION@</license>
+  <contributor>@MODULE_CONTRIBUTORS@</contributor>
+  <acknowledgements>@MODULE_ACKNOWLEDGEMENTS@</acknowledgements>
+  <parameters>
+    <label>IASEM Import Series Parameters</label>
+    <description><![CDATA[Parameters for IASEM Import Series]]></description>
+    <integer-vector>
+      <name>binFactors</name>
+      <longflag>--bin</longflag>
+      <description><![CDATA[The amound to shrink the imported image in pixel size, with values of (XY), (XY,Z) or (X,Y,Z).]]></description>
+      <label>Shrink Factors</label>
+      <default>1,1,1</default>
+    </integer-vector>
+    <boolean>
+      <name>disableZBin</name>
+      <longflag>--disableZBin</longflag>
+      <label>Disable Z-Averaging</label>
+      <description><![CDATA[Disable binning or averaging for each pixel in the z-direction. This option enables shrink image filter in the z-direction. By not using binning the importing may run faster because it needs to read fewer slice.]]></description>
+    </boolean>
+    <region multiple="false" coordinateSystem="ras">
+      <name>imageROI</name>
+      <label>Image ROI</label>
+      <channel>input</channel>
+      <longflag>imageROI</longflag>
+      <description><![CDATA[Label image which defines a ROI of interest for the fixed image]]></description>
+      <default/>
+    </region>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <directory>
+      <name>inputDirectory</name>
+      <longflag>--inputDirectory</longflag>
+      <label>Input Directory</label>
+      <description>Input directory containing series of tiffs.</description>
+      <channel>input</channel>
+      <default>./</default>
+    </directory>
+    <file fileExtensions=".xg,.prexg">
+      <name>imodXG</name>
+      <label>Input IMOD XG</label>
+      <longflag>--imodxg</longflag>
+      <channel>input</channel>
+      <description>Input global transformation file, which is used to apply slice to slice alignment to the volume.</description>
+    </file>
+    <image>
+      <name>outputVolume</name>
+      <label>IASEM Volume</label>
+      <channel>output</channel>
+      <index>0</index>
+      <description><![CDATA[Reconstructed Volume]]></description>
+    </image>
+  </parameters>
+</executable>
