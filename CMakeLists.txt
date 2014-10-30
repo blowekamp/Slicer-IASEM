@@ -58,6 +58,7 @@ endif()
 add_subdirectory( BinShrink )
 add_subdirectory( IASEMImport )
 
+add_subdirectory( IASEMImportSeries )
 add_subdirectory( SpacingAwareCurvatureDiffusion )
 
 # scripted SimpleITK Editor Effects
