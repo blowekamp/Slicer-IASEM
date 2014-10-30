@@ -225,22 +225,31 @@ itk::Image<unsigned char, 3>::Pointer ApplyAlignmentToStack( const std::vector<s
 
   InstancePointer<InterpolatorType> interpolator;
   InstancePointer<ResampleFilterType> resampler;
+  InstancePointer<itk::ChangeInformationImageFilter<ImageType2D> > sliceChanger;
 
   InstancePointer<SliceBySliceFilterType> sliceBySliceFilter;
 
 
   if ( sliceTransforms.size() == sliceList.size() )
     {
+    const ImageType2D::SpacingType spacing(1.0);
+    sliceChanger->SetOutputSpacing(spacing);
+    sliceChanger->ChangeSpacingOn();
+
+    const ImageType2D::PointType origin(0.0);
+    sliceChanger->SetOutputOrigin(origin);
+    sliceChanger->ChangeOriginOn();
 
     lastFilter->UpdateOutputInformation();
     itk::ImageRegion<2> region2d = lastFilter->GetOutput()->GetLargestPossibleRegion().Slice(2);
     resampler->SetInterpolator(interpolator);
     resampler->SetOutputStartIndex( region2d.GetIndex() );
     resampler->SetSize( region2d.GetSize() );
+    resampler->SetInput(sliceChanger->GetOutput());
 
     sliceBySliceFilter->SetInput(lastFilter->GetOutput());
-    sliceBySliceFilter->SetFilter(resampler);
-
+    sliceBySliceFilter->SetInputFilter(sliceChanger);
+    sliceBySliceFilter->SetOutputFilter(resampler);
 
     observer->sliceTransforms = &sliceTransforms;
     observer->resampler = resampler;
