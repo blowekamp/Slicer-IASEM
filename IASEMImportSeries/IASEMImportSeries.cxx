@@ -272,15 +272,18 @@ itk::Image<unsigned char, 3>::Pointer ApplyAlignmentToStack( const std::vector<s
 
   InstancePointer<BinFilterType> binner;
   InstancePointer<ShrinkFilterType> shrinker;
-  if (binFactors[0] != bin_default[0] &&
-      binFactors[1] != bin_default[1] )
+  if (binFactors[0] != bin_default[0] ||
+      binFactors[1] != bin_default[1] ||
+      ( binFactors[2] != bin_default[2]  && enableZBinning ) )
     {
     binner->SetInput(lastFilter->GetOutput());
     binner->SetShrinkFactor(0, binFactors[0]);
     binner->SetShrinkFactor(1, binFactors[1]);
 
     if (enableZBinning)
+      {
       binner->SetShrinkFactor(2, binFactors[2]);
+      }
     lastFilter=binner.GetPointer();
     }
 
