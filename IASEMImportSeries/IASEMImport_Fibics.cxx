@@ -5,6 +5,7 @@
 #include "expat.h"
 
 #include <numeric>
+#include <algorithm>
 
 #define TIFFTAG_FIBICS 51023
 
