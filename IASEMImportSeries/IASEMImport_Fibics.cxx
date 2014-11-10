@@ -14,7 +14,7 @@ std::string ExtractFibicsXMLFromTiff( const std::string &fname )
   int value_count = 0;
   int ret = 0;
   std::string result;
-  
+
   // Check that TIFFImageIO can read this file:
   TIFFErrorHandler save = TIFFSetWarningHandler(0);
 
@@ -205,7 +205,7 @@ FibicsData ExtractFibicsData( const char*xml, int len )
   FibicsData fd;
   XMLParseData pd;
   pd.fd = &fd;
-  
+
   XML_Parser parser = XML_ParserCreate(NULL);
 
   if (!parser)
@@ -329,4 +329,3 @@ void ExtractFibicsInfo( const std::vector<std::string> &sliceList,
             << " " << reduced_bb.GetUpperIndex()[1]
             << std::endl;
 }
-
