@@ -162,7 +162,7 @@ void ProcessData( const XMLParseData &pd )
 
 namespace
 {
-void start_element(void *data, const XML_Char *el, const XML_Char **attr)
+void start_element(void *data, const XML_Char *el, const XML_Char **itkNotUsed(attr) )
 {
   assert(data);
   XMLParseData &pd = *reinterpret_cast<XMLParseData*>(data);
@@ -171,7 +171,7 @@ void start_element(void *data, const XML_Char *el, const XML_Char **attr)
   ++pd.depth;
 }
 
-void end_element(void *data, const XML_Char *el)
+void end_element(void *data, const XML_Char *itkNotUsed(el))
 {
   assert(data);
   XMLParseData &pd = *reinterpret_cast<XMLParseData*>(data);
@@ -205,8 +205,7 @@ FibicsData ExtractFibicsData( const char*xml, int len )
   FibicsData fd;
   XMLParseData pd;
   pd.fd = &fd;
-  int ret;
-
+  
   XML_Parser parser = XML_ParserCreate(NULL);
 
   if (!parser)
