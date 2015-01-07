@@ -1,5 +1,11 @@
 #-----------------------------------------------------------------------------
+
+# to avoid conflict with VTK's ExternalData CMake module, temporarily
+# update module path
+set(_CMAKE_MODULE_PATH CMAKE_MODULE_PATH)
+set(CMAKE_MODULE_PATH "")
 include(ExternalData)
+set(CMAKE_MODULE_PATH _CMAKE_MODULE_PATH)
 
 if(NOT ExternalData_OBJECT_STORES)
   # Use ExternalData_OBJECT_STORES from environment as default.
