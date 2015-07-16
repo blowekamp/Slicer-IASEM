@@ -2,9 +2,24 @@ import os
 from __main__ import vtk, qt, ctk, slicer
 import EditorLib
 from EditorLib.EditOptions import HelpButton
-from EditorLib.EditOptions import EditOptions
-from EditorLib import EditUtil
+from EditorLib.EditUtil import EditUtil
 from EditorLib import LabelEffect
+from EditorLib import Effect
+
+HAVE_SIMPLEITK=True
+try:
+  import SimpleITK as sitk
+  import sitkUtils
+except ImportError:
+  HAVE_SIMPLEITK=False
+
+__all__ = [
+  "BinaryWatershedEffectOptions",
+  "BinaryWatershedEffectTool",
+  "BinaryWatershedEffectLogic",
+  "BinaryWatershedEffectExtension",
+  "BinaryWatershedEffect"
+  ]
 
 #
 # The Editor Extension itself.
@@ -55,7 +70,7 @@ class BinaryWatershedEffectOptions(EditorLib.LabelEffectOptions):
   # in each leaf subclass so that "self" in the observer
   # is of the correct type
   def updateParameterNode(self, caller, event):
-    node = EditUtil.EditUtil().getParameterNode()
+    node = EditUtil.getParameterNode()
     if node != self.parameterNode:
       if self.parameterNode:
         node.RemoveObserver(self.parameterNodeTag)
@@ -71,7 +86,7 @@ class BinaryWatershedEffectOptions(EditorLib.LabelEffectOptions):
     self.updatingGUI = False
 
   def onApply(self):
-    logic = BinaryWatershedEffectLogic( self.editUtil.getSliceLogic() )
+    logic = BinaryWatershedEffectLogic( EditUtil.getSliceLogic() )
     logic.undoRedo = self.undoRedo
 
     logic.doit()
@@ -151,9 +166,10 @@ class BinaryWatershedEffectLogic(LabelEffect.LabelEffectLogic):
     level = 1
 
     l = sitk.BinaryThreshold( labelImage, labelID, labelID, 1, 0 )
-    
+
     filled = sitk.BinaryFillhole( l )
-    
+
+
     d = sitk.SignedMaurerDistanceMap( filled,
                                       insideIsPositive = False,
                                       squaredDistance = False,
@@ -257,5 +273,3 @@ class BinaryWatershedEffectWidget:
 
   def exit(self):
     pass
-
-
