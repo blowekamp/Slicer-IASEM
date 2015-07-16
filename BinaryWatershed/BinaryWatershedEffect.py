@@ -3,7 +3,6 @@ from __main__ import vtk, qt, ctk, slicer
 import EditorLib
 from EditorLib.EditOptions import HelpButton
 from EditorLib.EditUtil import EditUtil
-from EditorLib import LabelEffect
 from EditorLib import Effect
 
 HAVE_SIMPLEITK=True
@@ -31,19 +30,12 @@ __all__ = [
 # BinaryWatershedEffectOptions - see LabelEffect, EditOptions and Effect for superclasses
 #
 
-class BinaryWatershedEffectOptions(EditorLib.LabelEffectOptions):
+class BinaryWatershedEffectOptions(Effect.EffectOptions):
   """ BinaryWatershedEffect-specfic gui
   """
 
   def __init__(self, parent=0):
     super(BinaryWatershedEffectOptions,self).__init__(parent)
-
-    # self.attributes should be tuple of options:
-    # 'MouseTool' - grabs the cursor
-    # 'Nonmodal' - can be applied while another is active
-    # 'Disabled' - not available
-    self.attributes = ('MouseTool')
-    self.displayName = 'BinaryWatershedEffect Effect'
 
   def __del__(self):
     super(BinaryWatershedEffectOptions,self).__del__()
@@ -51,12 +43,22 @@ class BinaryWatershedEffectOptions(EditorLib.LabelEffectOptions):
   def create(self):
 
     super(BinaryWatershedEffectOptions,self).create()
+
+    if not HAVE_SIMPLEITK:
+      self.warningLabel = qt.QLabel()
+      self.warningLabel.text = "BinaryWatershed is not available because\nSimpleITK is not available in this build"
+      self.widgets.append(self.warningLabel)
+      self.frame.layout().addWidget(self.warningLabel)
+      return
+
     self.apply = qt.QPushButton("Apply", self.frame)
     self.apply.setToolTip("Apply the binary watershed operation")
     self.frame.layout().addWidget(self.apply)
     self.widgets.append(self.apply)
 
-    HelpButton(self.frame, "This is a sample with no real functionality.")
+    helpDoc = """This is a sample with no real functionality."""
+
+    HelpButton(self.frame, helpDoc)
 
     self.apply.connect('clicked()', self.onApply)
 
@@ -70,7 +72,7 @@ class BinaryWatershedEffectOptions(EditorLib.LabelEffectOptions):
   # in each leaf subclass so that "self" in the observer
   # is of the correct type
   def updateParameterNode(self, caller, event):
-    node = EditUtil.getParameterNode()
+    node = self.editUtil.getParameterNode()
     if node != self.parameterNode:
       if self.parameterNode:
         node.RemoveObserver(self.parameterNodeTag)
@@ -106,7 +108,7 @@ class BinaryWatershedEffectOptions(EditorLib.LabelEffectOptions):
 # BinaryWatershedEffectTool
 #
 
-class BinaryWatershedEffectTool(LabelEffect.LabelEffectTool):
+class BinaryWatershedEffectTool(Effect.EffectTool):
   """
   One instance of this will be created per-view when the effect
   is selected.  It is responsible for implementing feedback and
@@ -133,7 +135,7 @@ class BinaryWatershedEffectTool(LabelEffect.LabelEffectTool):
 # BinaryWatershedEffectLogic
 #
 
-class BinaryWatershedEffectLogic(LabelEffect.LabelEffectLogic):
+class BinaryWatershedEffectLogic(Effect.EffectLogic):
   """
   This class contains helper methods for a given effect
   type.  It can be instanced as needed by an BinaryWatershedEffectTool
@@ -194,7 +196,7 @@ class BinaryWatershedEffectLogic(LabelEffect.LabelEffectLogic):
 # The BinaryWatershedEffectExtension class definition
 #
 
-class BinaryWatershedEffectExtension(LabelEffect.LabelEffect):
+class BinaryWatershedEffectExtension(Effect.Effect):
   """Organizes the Options, Tool, and Logic classes into a single instance
   that can be managed by the EditBox
   """
@@ -255,6 +257,7 @@ class BinaryWatershedEffect:
     except AttributeError:
       slicer.modules.editorExtensions = {}
     slicer.modules.editorExtensions['BinaryWatershedEffect'] = BinaryWatershedEffectExtension
+
 
 #
 # BinaryWatershedEffectWidget
