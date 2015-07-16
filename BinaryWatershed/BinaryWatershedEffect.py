@@ -51,16 +51,59 @@ class BinaryWatershedEffectOptions(Effect.EffectOptions):
       self.frame.layout().addWidget(self.warningLabel)
       return
 
+    self.splitSizeFrame = qt.QFrame(self.frame)
+    self.splitSizeFrame.setLayout(qt.QHBoxLayout())
+    self.frame.layout().addWidget(self.splitSizeFrame)
+    self.widgets.append(self.splitSizeFrame)
+
+    tip = "Sets the a minimum size for labels which will be split into multiple objects."
+    self.splitSizeLabel = qt.QLabel("Split Size:", self.frame)
+    self.splitSizeLabel.setToolTip(tip)
+    self.splitSizeFrame.layout().addWidget(self.splitSizeLabel)
+    self.widgets.append(self.splitSizeLabel)
+
+    self.minimumSplitSize = 0
+    self.maximumSplitSize = 100
+
+
+    self.splitSizeSlider = qt.QSlider( qt.Qt.Horizontal, self.frame )
+    self.splitSizeSlider.setValue(1)
+    self.splitSizeFrame.layout().addWidget(self.splitSizeSlider)
+    self.splitSizeFrame.setToolTip(tip)
+    self.widgets.append(self.splitSizeSlider)
+
+    self.splitSizeSpinBox = qt.QDoubleSpinBox(self.frame)
+    self.splitSizeSpinBox.setToolTip(tip)
+    self.splitSizeSpinBox.setValue(1)
+    self.splitSizeSpinBox.suffix = "mm"
+
+    self.splitSizeFrame.layout().addWidget(self.splitSizeSpinBox)
+    self.widgets.append(self.splitSizeSpinBox)
+
+    self.splitSizeSpinBox.minimum = self.minimumSplitSize
+    self.splitSizeSlider.minimum = self.minimumSplitSize
+    self.splitSizeSpinBox.maximum = self.maximumSplitSize
+    self.splitSizeSlider.maximum = self.maximumSplitSize
+
     self.apply = qt.QPushButton("Apply", self.frame)
     self.apply.setToolTip("Apply the binary watershed operation")
     self.frame.layout().addWidget(self.apply)
     self.widgets.append(self.apply)
 
-    helpDoc = """This is a sample with no real functionality."""
-
+    helpDoc = """Split selected label into separate objects based at minimum size the objects."""
     HelpButton(self.frame, helpDoc)
 
     self.apply.connect('clicked()', self.onApply)
+
+
+    self.splitSizeSlider.connect( 'valueChanged(int)', self.splitSizeSpinBox.setValue )
+    self.splitSizeSpinBox.connect( 'valueChanged(double)', self.splitSizeSlider.setValue )
+
+    # if either widget is changed both should change and this should be triggered
+    self.connections.append( ( self.splitSizeSpinBox, 'valueChanged(double)', self.onSplitSizeValueChanged ) )
+
+
+
 
     # Add vertical spacer
     self.frame.layout().addStretch(1)
@@ -90,8 +133,11 @@ class BinaryWatershedEffectOptions(Effect.EffectOptions):
   def onApply(self):
     logic = BinaryWatershedEffectLogic( EditUtil.getSliceLogic() )
     logic.undoRedo = self.undoRedo
-
+    logic.splitSize = float( self.splitSizeSpinBox.value )
     logic.doit()
+
+  def onSplitSizeValueChanged(self, sigma):
+    self.updateMRMLFromGUI()
 
   def updateMRMLFromGUI(self):
     if self.updatingGUI:
@@ -149,6 +195,8 @@ class BinaryWatershedEffectLogic(Effect.EffectLogic):
   def __init__(self,sliceLogic):
     super(BinaryWatershedEffectLogic,self).__init__(sliceLogic)
 
+    self.splitSize = 0.5
+
   def apply(self,xy):
     pass
 
@@ -159,13 +207,17 @@ class BinaryWatershedEffectLogic(Effect.EffectLogic):
     labelNodeName = labelNode.GetName()
     labelImage = sitk.ReadImage( sitkUtils.GetSlicerITKReadWriteAddress( labelNodeName ) )
 
+    bgLogic = self.sliceLogic.GetBackgroundLayer()
+    bgNode = bgLogic.GetVolumeNode()
+    bgNodeName = bgNode.GetName()
+    bgImage = sitk.ReadImage( sitkUtils.GetSlicerITKReadWriteAddress( bgNodeName ) )
+
     # store a backup copy of the label map for undo
     # (this happens in it's own thread, so it is cheap)
     if self.undoRedo:
       self.undoRedo.saveState()
 
     labelID = self.editUtil.getLabel()
-    level = 1
 
     l = sitk.BinaryThreshold( labelImage, labelID, labelID, 1, 0 )
 
@@ -179,10 +231,32 @@ class BinaryWatershedEffectLogic(Effect.EffectLogic):
     del filled
 
     d = sitk.Threshold( d, -1e23, 0, 0 )
+    feature = d
 
 
-    ws = sitk.MorphologicalWatershed( d, markWatershedLine=False, level = level )
+
+    if ( self.splitSize != 0.0 ):
+      # the splitSize is divided by 2 to convert from a diameter size of a radius size
+      level = self.splitSize*0.5
+      d = sitk.HMinima(feature,
+                       height=level,
+                       fullyConnected=False)
+
+    markers = sitk.RegionalMinima(d,
+                                  backgroundValue=0,
+                                  foregroundValue=1,
+                                  fullyConnected=False,
+                                  flatIsMinima=True)
     del d
+
+    markers = sitk.ConnectedComponent(markers,
+                            fullyConnected=False)
+
+    ws = sitk.MorphologicalWatershedFromMarkers( feature,
+                                                 markers,
+                                                 markWatershedLine=False )
+    del feature
+    del markers
 
     ws = sitk.Mask( sitk.Cast( ws, labelImage.GetPixelIDValue() ), l )
     del l
@@ -231,18 +305,17 @@ class BinaryWatershedEffect:
   def __init__(self, parent):
     parent.title = "Editor BinaryWatershedEffect Effect"
     parent.categories = ["Developer Tools.Editor Extensions"]
-    parent.contributors = ["Steve Pieper (Isomics)"] # insert your name in the list
+    parent.contributors = ["Bradley Lowekamp (NLM/MSC)"] # insert your name in the list
     parent.helpText = """
-    Example of an editor extension.  No module interface here, only in the Editor module
+    No module interface here, only in the Editor module
     """
     parent.acknowledgementText = """
     This editor extension was developed by
-    <Author>, <Institution>
+    Bradley Lowekamp, NLM/MSC
     based on work by:
     Steve Pieper, Isomics, Inc.
     based on work by:
     Jean-Christophe Fillion-Robin, Kitware Inc.
-    and was partially funded by NIH grant 3P41RR013218.
     """
 
     # TODO:
@@ -257,22 +330,3 @@ class BinaryWatershedEffect:
     except AttributeError:
       slicer.modules.editorExtensions = {}
     slicer.modules.editorExtensions['BinaryWatershedEffect'] = BinaryWatershedEffectExtension
-
-
-#
-# BinaryWatershedEffectWidget
-#
-
-class BinaryWatershedEffectWidget:
-  def __init__(self, parent = None):
-    self.parent = parent
-
-  def setup(self):
-    # don't display anything for this widget - it will be hidden anyway
-    pass
-
-  def enter(self):
-    pass
-
-  def exit(self):
-    pass
