@@ -116,7 +116,6 @@ int DoIt( int argc, char * argv[], T )
       crop.SetIndex(idx1);
       crop.SetUpperIndex(idx2);
       crop.Crop(lastFilter->GetOutput()->GetLargestPossibleRegion());
-      std::cout << crop;
 
       extractor->SetInput(lastFilter->GetOutput());
       extractor->SetExtractionRegion(crop);
@@ -171,19 +170,37 @@ int DoIt( int argc, char * argv[], T )
 
   try
     {
-    typedef itk::StreamingImageFilter<InputImageType,OutputImageType> StreamerFilterType;
-    InstancePointer<StreamerFilterType> streamer;
-    streamer->SetInput(lastFilter->GetOutput());
-    streamer->SetNumberOfStreamDivisions(numberOfStreamDivisions);
 
-    itk::PluginFilterWatcher watcher(streamer.GetPointer(), "Stream Reading", CLPProcessInformation);
+
+    typename itk::ImageIOBase::Pointer imageio = itk::ImageIOFactory::CreateImageIO(outputVolume.c_str(),
+                                                                                    itk::ImageIOFactory::WriteMode);
 
     typedef itk::ImageFileWriter<OutputImageType> WriterType;
     typename WriterType::Pointer writer = WriterType::New();
-    writer->SetInput(streamer->GetOutput());
     writer->SetFileName( outputVolume.c_str() );
     writer->SetUseCompression(0);
-    writer->Update();
+    writer->SetImageIO(imageio);
+
+    if ( imageio.IsNotNull() && imageio->CanStreamWrite() )
+      {
+      itk::PluginFilterWatcher watcher(writer.GetPointer(), "Stream Writing", CLPProcessInformation);
+
+      writer->SetInput(lastFilter->GetOutput());
+      writer->SetNumberOfStreamDivisions(numberOfStreamDivisions);
+      writer->Update();
+      }
+    else
+      {
+      typedef itk::StreamingImageFilter<InputImageType,OutputImageType> StreamerFilterType;
+      InstancePointer<StreamerFilterType> streamer;
+      streamer->SetInput(lastFilter->GetOutput());
+      streamer->SetNumberOfStreamDivisions(numberOfStreamDivisions);
+
+      itk::PluginFilterWatcher watcher(streamer.GetPointer(), "Stream Reading", CLPProcessInformation);
+
+      writer->SetInput(streamer->GetOutput());
+      writer->Update();
+      }
     }
   catch (...)
     {

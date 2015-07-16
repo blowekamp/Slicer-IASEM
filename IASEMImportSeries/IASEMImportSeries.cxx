@@ -182,14 +182,15 @@ protected:
 
 const unsigned int bin_default[] = {1,1,1};
 
-itk::Image<unsigned char, 3>::Pointer ApplyAlignmentToStack( const std::vector<std::string> &sliceList,
-                                                             const itk::Vector<double,3> &spacing,
-                                                             const itk::ImageRegion<2> &bb,
-                                                             const itk::FixedArray< unsigned int, 3 > binFactors = bin_default,
-                                                             bool enableZBinning = true,
-                                                             const TransformListType &sliceTransforms = TransformListType(),
-                                                             itk::Point<double, 3> pt1 = itk::Point<double, 3>(),
-                                                             itk::Point<double, 3> pt2 = itk::Point<double, 3>()
+void WriteAlignmentToStack( const std::string &outputVolume,
+                            const std::vector<std::string> &sliceList,
+                            const itk::Vector<double,3> &spacing,
+                            const itk::ImageRegion<2> &bb,
+                            const itk::FixedArray< unsigned int, 3 > binFactors = bin_default,
+                            bool enableZBinning = true,
+                            const TransformListType &sliceTransforms = TransformListType(),
+                            itk::Point<double, 3> pt1 = itk::Point<double, 3>(),
+                            itk::Point<double, 3> pt2 = itk::Point<double, 3>()
   )
 {
 
@@ -329,17 +330,41 @@ itk::Image<unsigned char, 3>::Pointer ApplyAlignmentToStack( const std::vector<s
   lastFilter->UpdateOutputInformation();
   itk::SizeValueType numberOfStreamDivisions = lastFilter->GetOutput()->GetLargestPossibleRegion().GetSize(2);
 
-  InstancePointer<StreamerFilterType> streamer;
-  streamer->SetInput(lastFilter->GetOutput());
-  streamer->SetNumberOfStreamDivisions(numberOfStreamDivisions);
 
-  itk::PluginFilterWatcher watcher(streamer, "Stream Reading", _CLPProcessInformation, 0.5, 0.5);
-  streamer->UpdateLargestPossibleRegion();
+  itk::ImageIOBase::Pointer imageio = itk::ImageIOFactory::CreateImageIO(outputVolume.c_str(),
+                                                                         itk::ImageIOFactory::WriteMode);
+
+  typedef itk::ImageFileWriter<ImageType> WriterType;
+  WriterType::Pointer writer = WriterType::New();
+  writer->SetFileName( outputVolume.c_str() );
+  writer->SetUseCompression(0);
+  writer->SetImageIO(imageio);
+
+
+  if ( imageio.IsNotNull() && imageio->CanStreamWrite() )
+    {
+    itk::PluginFilterWatcher watcher(writer.GetPointer(), "Stream Writing", _CLPProcessInformation, 0.5, 0.5);
+
+    writer->SetInput(lastFilter->GetOutput());
+    writer->SetNumberOfStreamDivisions(numberOfStreamDivisions);
+    writer->Update();
+    }
+  else
+    {
+    typedef itk::StreamingImageFilter<ImageType,ImageType> StreamerFilterType;
+    InstancePointer<StreamerFilterType> streamer;
+    streamer->SetInput(lastFilter->GetOutput());
+    streamer->SetNumberOfStreamDivisions(numberOfStreamDivisions);
+
+    itk::PluginFilterWatcher watcher(streamer.GetPointer(), "Stream Reading", _CLPProcessInformation, 0.5, 0.5);
+
+    writer->SetInput(streamer->GetOutput());
+    writer->Update();
+    }
 
 #ifndef NDEBUG
   std::cout << monitor;
 #endif
-  return streamer->GetOutput();
 }
 
 } // end of anonymous namespace
@@ -448,21 +473,14 @@ int main( int argc, char * argv[] )
     binFactorsArray[1] = binFactors.size()<3?binFactors[0]:binFactors[1];
     binFactorsArray[2] = binFactors.size()==1?1:binFactors.back();
 
-    typedef itk::Image<unsigned char, 3> ImageType;
-    ImageType::Pointer out = ApplyAlignmentToStack( sliceList,
-                                                    spacing,
+    WriteAlignmentToStack( outputVolume,
+                           sliceList,
+                           spacing,
                                                     reduced_bb,
                                                     binFactorsArray,
                                                     !disableZBin,
                                                     sliceTransforms,
                                                     p1,p2);
-
-    typedef itk::ImageFileWriter<ImageType> WriterType;
-    InstancePointer<WriterType> writer;
-    writer->SetFileName( outputVolume.c_str() );
-    writer->SetInput( out );
-    writer->SetUseCompression(0);
-    writer->Update();
 
 
     return EXIT_SUCCESS;
