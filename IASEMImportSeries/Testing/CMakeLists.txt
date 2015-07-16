@@ -70,4 +70,15 @@ ExternalData_Add_Test(Data NAME ${testname} COMMAND ${SEM_LAUNCH_COMMAND} $<TARG
 set_property(TEST ${testname} PROPERTY LABELS ${CLP})
 
 
+set(testname ${CLP}Test4)
+ExternalData_Add_Test(Data NAME ${testname} COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
+  --compare DATA{${BASELINE}/${CLP}Test2.mrc}
+            ${TEMP}/${testname}.nrrd
+  ModuleEntryPoint
+   --bin 1,1,2
+   --inputDirectory DATA{${INPUT}/InLens/,REGEX:.*.tif}
+   --imodxg "${INPUT}/InLens/Gold3nmEsBTr.xg"
+   ${TEMP}/${testname}.nrrd )
+set_property(TEST ${testname} PROPERTY LABELS ${CLP})
+
 ExternalData_Add_Target(Data)
