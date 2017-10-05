@@ -213,7 +213,7 @@ void WriteAlignmentToStack( const std::string &outputVolume,
   extractor->SetExtractionRegion(extractRegion);
   extractor->InPlaceOn();
 
-  const bool axis[] = {false,true};
+  const bool axis[] = {false,true,false};
   const FlipFilterType::FlipAxesArrayType flipAxes(axis);
   InstancePointer<FlipFilterType> flipper;
   flipper->SetInput(extractor->GetOutput());
