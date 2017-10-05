@@ -1,11 +1,3 @@
-#-----------------------------------------------------------------------------
-
-# to avoid conflict with VTK's ExternalData CMake module, temporarily
-# update module path
-set(_CMAKE_MODULE_PATH CMAKE_MODULE_PATH)
-set(CMAKE_MODULE_PATH "")
-include(ExternalData)
-set(CMAKE_MODULE_PATH _CMAKE_MODULE_PATH)
 
 #-----------------------------------------------------------------------------
 set(BASELINE ${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline)
@@ -22,49 +14,49 @@ set_target_properties(${CLP}Test PROPERTIES LABELS ${CLP})
 
 
 set(testname ${CLP}Test1)
-add_test(Data NAME ${testname} COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
+add_test(NAME ${testname} COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare ${BASELINE}/${testname}.mrc
             ${TEMP}/${testname}.mrc
   ModuleEntryPoint
    --bin 1,1,2
    --disableZBin
-   --inputDirectory ${INPUT}/InLens/,REGEX:.*.tif
+   --inputDirectory ${INPUT}/InLens/
    ${TEMP}/${testname}.mrc )
 set_property(TEST ${testname} PROPERTY LABELS ${CLP})
 
 
 set(testname ${CLP}Test2)
-add_test(Data NAME ${testname} COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
+add_test(NAME ${testname} COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare ${BASELINE}/${testname}.mrc
             ${TEMP}/${testname}.mrc
   ModuleEntryPoint
    --bin 1,1,2
-   --inputDirectory ${INPUT}/InLens/,REGEX:.*.tif
+   --inputDirectory ${INPUT}/InLens/
    --imodxg "${INPUT}/InLens/Gold3nmEsBTr.xg"
    ${TEMP}/${testname}.mrc )
 set_property(TEST ${testname} PROPERTY LABELS ${CLP})
 
 
 set(testname ${CLP}Test3)
-add_test(Data NAME ${testname} COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
+add_test(NAME ${testname} COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare ${BASELINE}/${testname}.mrc
             ${TEMP}/${testname}.mrc
   ModuleEntryPoint
    --bin 4,4,2
    --disableZBin
-   --inputDirectory ${INPUT}/InLens/,REGEX:.*.tif
+   --inputDirectory ${INPUT}/InLens/
    --imodxg "${INPUT}/InLens/Gold3nmEsBTr.xg"
    ${TEMP}/${testname}.mrc )
 set_property(TEST ${testname} PROPERTY LABELS ${CLP})
 
 
 set(testname ${CLP}Test4)
-add_test(Data NAME ${testname} COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
+add_test(NAME ${testname} COMMAND ${SEM_LAUNCH_COMMAND} $<TARGET_FILE:${CLP}Test>
   --compare ${BASELINE}/${CLP}Test2.mrc
             ${TEMP}/${testname}.nrrd
   ModuleEntryPoint
    --bin 1,1,2
-   --inputDirectory ${INPUT}/InLens/,REGEX:.*.tif
+   --inputDirectory ${INPUT}/InLens/
    --imodxg "${INPUT}/InLens/Gold3nmEsBTr.xg"
    ${TEMP}/${testname}.nrrd )
 set_property(TEST ${testname} PROPERTY LABELS ${CLP})
